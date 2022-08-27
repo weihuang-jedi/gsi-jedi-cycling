@@ -1,0 +1,26 @@
+#!/bin/sh
+export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+ulimit -s unlimited
+[ -z "$nprocs" ] && echo "Need to set nprocs" && exit 1;
+[ -z "$PGM" ] && echo "Need to set PGM" && exit 1;
+# use srun
+totcores=`expr $nprocs \* $OMP_NUM_THREADS`
+totnodes=`python -c "from __future__ import print_function; import math; print(int(math.ceil(float(${totcores})/${corespernode})))"`
+count=`python -c "from __future__ import print_function; import math; print(int(math.floor(float(${corespernode})/${mpitaskspernode})))"` 
+mpitaskspernode=`python -c "from __future__ import print_function; import math; print(int(math.ceil(float(${nprocs})/${totnodes})))"`
+# -c: cpus per mpi task (number of threads per mpi task)
+# -n: total number of mpi tasks
+# -N: number of nodes to run on
+# --ntasks-per-node:  mpi tasks on each node
+# reset threads to max allowed to avoid running out of stack
+export threadmax=${threadmax:-$corespernode}
+if [ $count -gt $threadmax ]; then
+  count=$threadmax
+  echo "resetting threads to $count"
+fi
+export OMP_NUM_THREADS=$count
+echo "running srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode  --exclusive --cpu-bind=cores --verbose $PGM"
+eval srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode --exclusive --cpu-bind=cores --verbose $PGM
+rc=$?
+echo "exiting runmpi..."
+exit $rc

@@ -1,0 +1,23 @@
+config.sh is main script, hpss.sh is script to archive on hpss
+${machine}_preamble is job scheduler preamble for config.sh
+${machine}_preamble_hpss is job scheduler preamble for hpss.sh
+submit_job.sh <machine> submits config.sh (which then submits itself and hpss.sh).
+most model namelist parameters set in the suite specific namelist file (FV3*nml).
+most of GSI namelist parameters set in run_gsi_4denvar.sh, some in config.sh.
+most of EnKF namelist parameters set in config.sh, some in enkf_run.sh.
+Resolution specific processor layout stuff for FV3 is set in <machine>_preamble_slurm.
+
+To cold start, create an initial directory in the experiment directory (i.e <expthome>/2000010100)
+touch an empty file (touch <expthome>/2000010100/cold_start_bias).  This will tell the scripts
+that there is no initial bias correction file.  Copy the dummy files gdas1.t00z.abias and abias_pc
+from this directory to <expthome>/2000010100.  Copy the initial conditions files to 2000010100.
+Create analdate.sh and fg_only.sh in the top level experiment directory (<expthome>).
+fg_only should contain "export fg_only=true" plus "export cold_start=true" and analdate.csh should contain
+"export analdate=YYYYMMDDHH" and "export analdate_end=YYYYMMDDHH", where YYYYMMDDHH is the
+date you want the experiment to start and end.
+
+
+* to turn off IAU, set iaudelthrs=-1 and iaufhrs=6 in config.sh
+
+Requires gsi/enkf and utils from https://github.com/jswhit/GSI (branch enkf-64bit)
+Uses ufs-weather-model branch GFSv16_CCPP
