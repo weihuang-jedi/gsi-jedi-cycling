@@ -37,14 +37,21 @@ export rungsi='run_gsi_4densvar.sh'
 export rungfs='run_fv3.sh' # ensemble forecast
 
 #export do_cleanup='true' # if true, create tar files, delete *mem* files.
-export do_cleanup='true' # if true, create tar files, delete *mem* files.
-export cleanup_fg='true'
-export cleanup_ensmean='true'
-export cleanup_ensmean_enkf='true'
-export cleanup_anal='true'
-export cleanup_controlanl='true'
-export cleanup_observer='true' 
-export resubmit='true'
+#export cleanup_fg='true'
+#export cleanup_ensmean='true'
+#export cleanup_ensmean_enkf='true'
+#export cleanup_anal='true'
+#export cleanup_controlanl='true'
+#export cleanup_observer='true' 
+#export resubmit='true'
+export do_cleanup='false' # if true, create tar files, delete *mem* files.
+export cleanup_fg='false'
+export cleanup_ensmean='false'
+export cleanup_ensmean_enkf='false'
+export cleanup_anal='false'
+export cleanup_controlanl='false'
+export cleanup_observer='false' 
+export resubmit='false'
 export replay_run_observer='false' # run observer on replay control forecast
 # python script checkdate.py used to check
 # YYYYMMDDHH analysis date string to see if
