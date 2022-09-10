@@ -82,8 +82,8 @@ export controlanal="false" # hybrid-cov high-res control analysis as in ops
 #export cleanup_fg='false'
 #export resubmit='false'
 #export do_cleanup='false'
-#export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
-#export save_hpss="false"
+export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
+export save_hpss="false"
 
 source $MODULESHOME/init/sh
 if [ "$machine" == 'hera' ]; then
