@@ -5,9 +5,9 @@
 #SBATCH -N 20  
 #SBATCH --ntasks-per-node=40
 #SBATCH -p orion
-#SBATCH -J C96_lgetkf_sondesonly
-#SBATCH -e C96_lgetkf_sondesonly.err
-#SBATCH -o C96_lgetkf_sondesonly.out
+#SBATCH -J gsi_C96_lgetkf_sondesonly
+#SBATCH -e gsi_C96_lgetkf_sondesonly.err
+#SBATCH -o gsi_C96_lgetkf_sondesonly.out
 
 export NODES=$SLURM_NNODES
 export corespernode=$SLURM_CPUS_ON_NODE
