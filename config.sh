@@ -26,7 +26,7 @@ export beta=1000 # percentage of enkf increment (*10)
 # in this case, to recenter around EnVar analysis set recenter_control_wgt=100
 export recenter_control_wgt=100
 export recenter_ensmean_wgt=`expr 100 - $recenter_control_wgt`
-export exptname="C${RES}_lgetkf_sondesonly"
+export exptname="gsi_C${RES}_lgetkf_sondesonly"
 # for 'passive' or 'replay' cycling of control fcst 
 export replay_controlfcst='false'
 export enkfonly='true' # pure EnKF
@@ -72,16 +72,16 @@ export controlanal="false" # hybrid-cov high-res control analysis as in ops
 # (hybgain will be set to false if controlanal=true)
 
 # override values from above for debugging.
-#export cleanup_ensmean='false'
-#export cleanup_ensmean_enkf='false'
-#export recenter_fcst="false"
-#export cleanup_controlanl='false'
-#export cleanup_observer='false'
-#export cleanup_anal='false'
-#export recenter_anal="false"
-#export cleanup_fg='false'
-#export resubmit='false'
-#export do_cleanup='false'
+export cleanup_ensmean='false'
+export cleanup_ensmean_enkf='false'
+export recenter_fcst="false"
+export cleanup_controlanl='false'
+export cleanup_observer='false'
+export cleanup_anal='false'
+export recenter_anal="false"
+export cleanup_fg='false'
+export resubmit='false'
+export do_cleanup='false'
 export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
 export save_hpss="false"
 
