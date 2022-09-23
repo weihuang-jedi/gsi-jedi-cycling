@@ -193,6 +193,7 @@ while [ $nanal -le $nanals ]; do
    charnanal="mem"`printf %03i $nanal`
    analfile=${datapath2}/sanl_${analdate}_${charfhr}_${charnanal}
    if [ ! -s $analfile ]; then
+     echo "$analfile is missing"
      filemissing='yes'
    fi
    nanal=$((nanal+1))
