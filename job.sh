@@ -1,20 +1,27 @@
 #!/bin/sh
 ##SBATCH -q urgent
-#SBATCH -t 00:30:00
+#SBATCH -t 03:30:00
 #SBATCH -A gsienkf
-#SBATCH -N 20  
+#SBATCH -N 10  
 #SBATCH --ntasks-per-node=40
 #SBATCH -p orion
-#SBATCH -J gsi_C96_lgetkf_sondesonly
-#SBATCH -e gsi_C96_lgetkf_sondesonly.err
-#SBATCH -o gsi_C96_lgetkf_sondesonly.out
+#SBATCH -J jedi_C96_lgetkf_sondesonly
+#SBATCH -e jedi_C96_lgetkf_sondesonly.err
+#SBATCH -o jedi_C96_lgetkf_sondesonly.out
 
 export NODES=$SLURM_NNODES
 export corespernode=$SLURM_CPUS_ON_NODE
 export machine='orion'
 
 # for control forecast
-if [ $NODES -eq 20 ]; then
+if [ $NODES -eq 10 ]; then
+  # 10 nodes, 2 threads
+  export control_threads=2
+  export control_proc=400
+  export write_groups_ctl=4 # write groups for control forecast.
+  export write_tasks_ctl=4
+  export layout_ctl="4,8" # layout_x,layout_y (total # mpi tasks = $layout_x*$layout_y*6=($fg_proc/$fg_threads) - $write_tasks*$write_groups)
+elif [ $NODES -eq 20 ]; then
   # 20 nodes, 2 threads
   export control_threads=2
   export control_proc=800
@@ -92,7 +99,7 @@ export beta=1000 # percentage of enkf increment (*10)
 # in this case, to recenter around EnVar analysis set recenter_control_wgt=100
 export recenter_control_wgt=100
 export recenter_ensmean_wgt=`expr 100 - $recenter_control_wgt`
-export exptname="gsi_C${RES}_lgetkf_sondesonly"
+export exptname="jedi_C${RES}_lgetkf_sondesonly"
 # for 'passive' or 'replay' cycling of control fcst 
 export replay_controlfcst='false'
 export enkfonly='true' # pure EnKF
@@ -102,6 +109,12 @@ export ensda="enkf_run.sh"
 export rungsi='run_gsi_4densvar.sh'
 export rungfs='run_fv3.sh' # ensemble forecast
 
+#export jedirun='false'
+export jedirun='true'
+export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
+export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
+export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
+
 #export do_cleanup='true' # if true, create tar files, delete *mem* files.
 #export cleanup_fg='true'
 #export cleanup_ensmean='true'
@@ -109,7 +122,7 @@ export rungfs='run_fv3.sh' # ensemble forecast
 #export cleanup_anal='true'
 #export cleanup_controlanl='true'
 #export cleanup_observer='true' 
-#export resubmit='true'
+export resubmit='true'
 export do_cleanup='false' # if true, create tar files, delete *mem* files.
 export cleanup_fg='false'
 export cleanup_ensmean='false'
@@ -117,7 +130,7 @@ export cleanup_ensmean_enkf='false'
 export cleanup_anal='false'
 export cleanup_controlanl='false'
 export cleanup_observer='false' 
-export resubmit='false'
+#export resubmit='false'
 export replay_run_observer='false' # run observer on replay control forecast
 # python script checkdate.py used to check
 # YYYYMMDDHH analysis date string to see if
@@ -138,16 +151,16 @@ export controlanal="false" # hybrid-cov high-res control analysis as in ops
 # (hybgain will be set to false if controlanal=true)
 
 # override values from above for debugging.
-export cleanup_ensmean='false'
-export cleanup_ensmean_enkf='false'
-export recenter_fcst="false"
-export cleanup_controlanl='false'
-export cleanup_observer='false'
-export cleanup_anal='false'
-export recenter_anal="false"
-export cleanup_fg='false'
-export resubmit='false'
-export do_cleanup='false'
+#export cleanup_ensmean='false'
+#export cleanup_ensmean_enkf='false'
+#export recenter_fcst="false"
+#export cleanup_controlanl='false'
+#export cleanup_observer='false'
+#export cleanup_anal='false'
+#export recenter_anal="false"
+#export cleanup_fg='false'
+#export resubmit='false'
+#export do_cleanup='false'
 export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
 export save_hpss="false"
 

@@ -229,18 +229,21 @@ if [ "$cold_start" == "false" ] && [ -z $skip_calc_increment ]; then
          export fgfile="${datapath2}/sfg_${analdate}_fhr0${fh}_${charnanal}"
       fi
       echo "create ${increment_file}"
-      /bin/rm -f ${increment_file}
-      # last three args:  no_mpinc no_delzinc, taper_strat
-      export "PGM=${execdir}/calc_increment_ncio.x ${fgfile} ${analfile} ${increment_file} T $hydrostatic T"
-      nprocs=1 mpitaskspernode=1 ${enkfscripts}/runmpi
-      if [ $? -ne 0 -o ! -s ${increment_file} ]; then
-         echo "problem creating ${increment_file}, stopping .."
-         exit 1
+      #If it is JEDI run, the increments with be generate from JEDI, instead of here.
+      if [ $jedirun != "true" ]; then
+         /bin/rm -f ${increment_file}
+         # last three args:  no_mpinc no_delzinc, taper_strat
+         export "PGM=${execdir}/calc_increment_ncio.x ${fgfile} ${analfile} ${increment_file} T $hydrostatic T"
+         nprocs=1 mpitaskspernode=1 ${enkfscripts}/runmpi
+         if [ $? -ne 0 -o ! -s ${increment_file} ]; then
+            echo "problem creating ${increment_file}, stopping .."
+            exit 1
+         fi
       fi
    done # do next forecast
    cd ..
 else
-   if [ $cold_start == "false" ] ; then
+   if [ $cold_start == "false" ] && [ $jedirun != "true" ] ; then
       cd INPUT
       iaufhrs2=`echo $iaufhrs | sed 's/,/ /g'`
 # move already computed increment files
