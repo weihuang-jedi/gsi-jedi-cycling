@@ -1,560 +1,525 @@
-#!/bin/sh
+# hybrid gain GSI(3DVar)/EnKF workflow
+export cores=`expr $NODES \* $corespernode`
+echo "running on $machine using $NODES nodes and $cores CORES"
 
-# main driver script
-# gsi gain or gsi covariance GSI EnKF (based on ensemble mean background)
-# optional high-res control fcst replayed to ens mean analysis
+export ndates_job=1 # number of DA cycles to run in one job submission
+# resolution of control and ensmemble.
+export RES=96   
+export RES_CTL=192
+export OCNRES=mx050
+export ORES3=`echo $OCNRES | cut -c3-5`
+# Penney 2014 Hybrid Gain algorithm with beta_1=1.0
+# beta_2=alpha and beta_3=0 in eqn 6 
+# (https://journals.ametsoc.org/doi/10.1175/MWR-D-13-00131.1)
+export hybgain="false" # hybrid gain approach, if false use hybrid covariance
+export alpha=250 # percentage of 3dvar increment (beta_2*1000) 
+export beta=1000 # percentage of enkf increment (*10)
+# if replay_controlfcst='true', weight given to ens mean vs control 
+# forecast in recentered backgrond ensemble (x100).  if recenter_control_wgt=0, then
+# no recentering is done. If recenter_control_wgt=100, then the background
+# ensemble is recentered around the control forecast.
+# recenter_control_wgt=recenter_ensmean_wgt=50, then the background ensemble
+# is recentered around the average of the (upscaled) control forecast and the
+# original ensemble mean.
+# if replay_controlfcst='false', not used for forecast.
+# also used to control weights for recentering of enkf analysis if hybgain='false'
+# in this case, to recenter around EnVar analysis set recenter_control_wgt=100
+export recenter_control_wgt=100
+export recenter_ensmean_wgt=`expr 100 - $recenter_control_wgt`
+export exptname="jedi_C${RES}_lgetkf_sondesonly"
+# for 'passive' or 'replay' cycling of control fcst 
+export replay_controlfcst='false'
+export enkfonly='true' # pure EnKF
 
-# allow this script to submit other scripts with LSF
-unset LSB_SUB_RES_REQ 
+export fg_gfs="run_ens_fv3.sh"
+export ensda="enkf_run.sh"
+export rungsi='run_gsi_4densvar.sh'
+export rungfs='run_fv3.sh' # ensemble forecast
 
-echo "nodes = $NODES"
+#export jedirun='false'
+export jedirun='true'
+export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
+export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
+export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
 
-idate_job=1
-
-while [ $idate_job -le ${ndates_job} ]; do
-
-source $datapath/fg_only.sh # define fg_only variable.
-
-export startupenv="${datapath}/analdate.sh"
-source $startupenv
-# substringing to get yr, mon, day, hr info
-export yr=`echo $analdate | cut -c1-4`
-export mon=`echo $analdate | cut -c5-6`
-export day=`echo $analdate | cut -c7-8`
-export hr=`echo $analdate | cut -c9-10`
-# previous analysis time.
-export FHOFFSET=`expr $ANALINC \/ 2`
-export analdatem1=`${incdate} $analdate -$ANALINC`
-# next analysis time.
-export analdatep1=`${incdate} $analdate $ANALINC`
-# beginning of current assimilation window
-export analdatem3=`${incdate} $analdate -$FHOFFSET`
-# beginning of next assimilation window
-export analdatep1m3=`${incdate} $analdate $FHOFFSET`
-export hrp1=`echo $analdatep1 | cut -c9-10`
-export hrm1=`echo $analdatem1 | cut -c9-10`
-
-# if $REALTIME == "YES", use OZINFO,CONVINFO,SATINFO set in config.sh
-if [ "$REALTIME" == "NO" ]; then
-
-#cd build_gsinfo
-#info=`sh pickinfo.sh $analdate convinfo`
-#export CONVINFO="$PWD/$info"
-#echo "CONVINFO: $CONVINFO"
-#info=`sh pickinfo.sh $analdate ozinfo`
-#export OZINFO="$PWD/$info"
-#echo "OZINFO: $OZINFO"
-#export SATINFO=$datapath/$analdate/satinfo
-#sh create_satinfo.sh $analdate > $SATINFO
-#cd ..
-
-#   Set CONVINFO
-if [[  "$analdate" -ge 2021052012 ]]; then
-    export CONVINFO=$fixgsi/gfsv16_historical/global_convinfo.txt.2021052012
-elif [[  "$analdate" -ge 2021032212 ]]; then
-    export CONVINFO=$fixgsi/gfsv16_historical/global_convinfo.txt.2021032212
-elif [[  "$analdate" -ge 2020091612 ]]; then
-    export CONVINFO=$fixgsi/gfsv16_historical/global_convinfo.txt.2020091612
-elif [[  "$analdate" -ge 2020052612 ]]; then
-    export CONVINFO=$fixgsi/gfsv16_historical/global_convinfo.txt.2020052612
-elif [[  "$analdate" -ge 2020040718 ]]; then
-    export CONVINFO=$fixgsi/gfsv16_historical/global_convinfo.txt.2020040718
-elif [[  "$analdate" -ge 2019110706 ]]; then
-    export CONVINFO=$fixgsi/gfsv16_historical/global_convinfo.txt.2019110706
-elif [[  "$analdate" -ge 2019021900 ]]; then
-    export CONVINFO=$fixgsi/gfsv16_historical/global_convinfo.txt.2019021900
-elif [[ "$analdate" -ge "2018022818" ]]; then
-    export CONVINFO=$fixgsi/fv3_historical/global_convinfo.txt.2018022818
-elif [[ "$analdate" -ge "2018010512" ]]; then
-    export CONVINFO=$fixgsi/fv3_historical/global_convinfo.txt.2018010512
-elif [[ "$analdate" -ge "2017071912" ]]; then
-    export CONVINFO=$fixgsi/fv3_historical/global_convinfo.txt.2017071912
-elif [[ "$analdate" -ge "2016031512" ]]; then
-    export CONVINFO=$fixgsi/fv3_historical/global_convinfo.txt.2016031512
-elif [[ "$analdate" -ge "2014041400" ]]; then
-    export CONVINFO=$fixgsi/fv3_historical/global_convinfo.txt.2014041400
+#export do_cleanup='true' # if true, create tar files, delete *mem* files.
+#export cleanup_fg='true'
+#export cleanup_ensmean='true'
+#export cleanup_ensmean_enkf='true'
+#export cleanup_anal='true'
+#export cleanup_controlanl='true'
+#export cleanup_observer='true' 
+export resubmit='true'
+export do_cleanup='false' # if true, create tar files, delete *mem* files.
+export cleanup_fg='false'
+export cleanup_ensmean='false'
+export cleanup_ensmean_enkf='false'
+export cleanup_anal='false'
+export cleanup_controlanl='false'
+export cleanup_observer='false' 
+#export resubmit='false'
+export replay_run_observer='false' # run observer on replay control forecast
+# python script checkdate.py used to check
+# YYYYMMDDHH analysis date string to see if
+# full ensemble should be saved to HPSS (returns 0 if 
+# HPSS save should be done)
+if [ $machine == "orion" ]; then
+   export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
+   export save_hpss="false"
 else
-    echo "no convinfo found"
-    exit 1
+   export save_hpss_subset="true" # save a subset of data each analysis time to HPSS
+   export save_hpss="true"
 fi
+export ensmean_restart='false'
+export recenter_anal="true"
+export recenter_fcst="false"
+export controlanal="false" # hybrid-cov high-res control analysis as in ops
+# controlanal takes precedence over hybgain
+# (hybgain will be set to false if controlanal=true)
 
-#   Set OZINFO
-if [[  "$analdate" -ge 2020011806 ]]; then
-    export OZINFO=$fixgsi/gfsv16_historical/global_ozinfo.txt.2020011806
-elif [[  "$analdate" -ge 2020011600 ]]; then
-    export OZINFO=$fixgsi/gfsv16_historical/global_ozinfo.txt.2020011600
-elif [[  "$analdate" -ge 2020011600 ]]; then
-    export OZINFO=$fixgsi/gfsv16_historical/global_ozinfo.txt.2020021900
-elif [[  "$analdate" -ge 2020011806 ]]; then
-    export OZINFO=$fixgsi/gfsv16_historical/global_ozinfo.txt.2020011806
-elif [[ "$analdate" -ge "2020011600" ]]; then
-    export OZINFO=$fixgsi/fv3_historical/global_ozinfo.txt.2020011600
-elif [[ "$analdate" -ge "2018110700" ]]; then
-    export OZINFO=$fixgsi/fv3_historical/global_ozinfo.txt.2018110700
-elif [[ "$analdate" -ge "2015110500" ]]; then
-    export OZINFO=$fixgsi/fv3_historical/global_ozinfo.txt.2015110500
+# override values from above for debugging.
+#export cleanup_ensmean='false'
+#export cleanup_ensmean_enkf='false'
+#export recenter_fcst="false"
+#export cleanup_controlanl='false'
+#export cleanup_observer='false'
+#export cleanup_anal='false'
+#export recenter_anal="false"
+#export cleanup_fg='false'
+#export resubmit='false'
+#export do_cleanup='false'
+export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
+export save_hpss="false"
+
+source $MODULESHOME/init/sh
+if [ "$machine" == 'hera' ]; then
+   export basedir=/scratch2/BMC/gsienkf/${USER}
+   export datadir=$basedir
+   export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
+   export obs_datapath=/scratch1/NCEPDEV/global/glopara/dump
+   module purge
+   module use /scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack
+   module load hpc/1.1.0
+   module load hpc-intel/18.0.5.274
+   module load hpc-impi/2018.0.4
+   module load hdf5/1.10.6
+   module load netcdf/4.7.4
+   module load pio/2.5.2
+   module load esmf/8_2_0_beta_snapshot_14
+   module load fms/2021.03
+   module load wgrib
+   export WGRIB=`which wgrib`
+elif [ "$machine" == 'orion' ]; then
+  #export basedir=/work2/noaa/gsienkf/${USER}
+   export basedir=/work2/noaa/gsienkf/weihuang/gsi
+   export datadir=$basedir
+   export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
+   export obs_datapath=/work/noaa/rstprod/dump
+   ulimit -s unlimited
+   source $MODULESHOME/init/sh
+   module use /apps/contrib/NCEP/libs/hpc-stack/modulefiles/stack
+   module load hpc/1.1.0
+   module load hpc-intel/2018.4
+   module unload mkl/2020.2
+   module load mkl/2018.4
+   module load hpc-impi/2018.4
+   module load python/3.7.5
+   module load hdf5/1.10.6-parallel
+   module load wgrib/1.8.0b
+  #export PYTHONPATH=/home/jwhitake/.local/lib/python3.7/site-packages
+   export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib
+   export HDF5_DISABLE_VERSION_CHECK=1
+   export WGRIB=`which wgrib`
+elif [ "$machine" == 'gaea' ]; then
+   export basedir=/lustre/f2/dev/${USER}
+   export datadir=/lustre/f2/scratch/${USER}
+   export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
+   #export hsidir="/3year/NCEPDEV/GEFSRR/${exptname}"
+   export obs_datapath=/lustre/f2/dev/Jeffrey.S.Whitaker/dumps
 else
-    echo "no ozinfo found"
-    exit 1
+   echo "machine must be 'hera', 'orion' or 'gaea' got $machine"
+   exit 1
 fi
+export datapath="${datadir}/${exptname}"
+export logdir="${datadir}/logs/${exptname}"
 
-#   Set SATINFO
-if [[ "$analdate" -ge "2021052118" ]]; then
-    export SATINFO=$fixgsi/gfsv16_historical/global_satinfo.txt.2021052118
-elif [[ "$analdate" -ge "2020022012" ]]; then
-    export SATINFO=$fixgsi/gfsv16_historical/global_satinfo.txt.2020022012
-elif [[ "$analdate" -ge "2019110706" ]]; then
-    export SATINFO=$fixgsi/gfsv16_historical/global_satinfo.txt.2019110706
-elif [[ "$analdate" -ge "2019021900" ]]; then
-    export SATINFO=$fixgsi/gfsv16_historical/global_satinfo.txt.2019021900
-elif [[ "$analdate" -ge "2018053012" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2018053012
-elif [[ "$analdate" -ge "2018021212" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2018021212
-elif [[ "$analdate" -ge "2017103118" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2017103118
-elif [[ "$analdate" -ge "2017031612" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2017031612
-elif [[ "$analdate" -ge "2017030812" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2017030812
-elif [[ "$analdate" -ge "2016110812" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2016110812
-elif [[ "$analdate" -ge "2016090912" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2016090912
-elif [[ "$analdate" -ge "2016020312" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2016020312
-elif [[ "$analdate" -ge "2016011912" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2016011912
-elif [[ "$analdate" -ge "2015111012" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2015111012
-elif [[ "$analdate" -ge "2015100118" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2015100118
-elif [[ "$analdate" -ge "2015070218" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2015070218
-elif [[ "$analdate" -ge "2015011412" ]]; then
-    export SATINFO=$fixgsi/fv3_historical/global_satinfo.txt.2015011412
+export NOSAT="YES" # if yes, no radiances assimilated
+export NOCONV="NO"
+export NOTLNMC="NO" # no TLNMC in GSI in GSI EnVar
+export NOOUTERLOOP="NO" # no outer loop in GSI EnVar
+# model NSST parameters contained within nstf_name in FV3 namelist
+# (comment out to get default - no NSST)
+# nstf_name(1) : NST_MODEL (NSST Model) : 0 = OFF, 1 = ON but uncoupled, 2 = ON and coupled
+export DONST="YES"
+export NST_MODEL=2
+# nstf_name(2) : NST_SPINUP : 0 = OFF, 1 = ON,
+export NST_SPINUP=0 # (will be set to 1 if cold_start=='true')
+# nstf_name(3) : NST_RESV (Reserved, NSST Analysis) : 0 = OFF, 1 = ON
+export NST_RESV=0
+# nstf_name(4,5) : ZSEA1, ZSEA2 the two depths to apply vertical average (bias correction)
+export ZSEA1=0
+export ZSEA2=0
+export NSTINFO=0          # number of elements added in obs. data array (default = 0)
+export NST_GSI=3          # default 0: No NST info at all;
+                          #         1: Input NST info but not used in GSI;
+                          #         2: Input NST info, used in CRTM simulation, no Tr analysis
+                          #         3: Input NST info, used in both CRTM simulation and Tr analysis
+
+# turn off NST
+export DONST="NO"
+export NST_MODEL=0
+export NST_GSI=0
+
+# turn off NST in GSI, but run passively in model
+export DONST="YES"
+export NST_MODEL=2
+export NST_GSI=0
+
+# fractional grid
+export FRAC_GRID=.false.
+#export FRAC_GRID=.true.
+
+
+if [ $NST_GSI -gt 0 ]; then export NSTINFO=4; fi
+if [ $NOSAT == "YES" ]; then export NST_GSI=0; fi # don't try to do NST in GSI without satellite data
+
+export LEVS=127 
+export aircraft_t_bc=.true.
+export aircraft_t_bc=.true.
+if [ $LEVS -eq 64 ]; then
+  export nsig_ext=12
+  export gpstop=50
+  export GRIDOPTS="nlayers(63)=3,nlayers(64)=6,"
+  if [ $DONST == "YES" ]; then
+     export SUITE="FV3_GFS_v15p2"
+  else
+     export SUITE="FV3_GFS_v15p2_no_nsst"
+  fi
+elif [ $LEVS -eq 127 ]; then
+  export nsig_ext=56
+  export gpstop=55
+  export GRIDOPTS="nlayers(63)=1,nlayers(64)=1,"
+  if [ $DONST == "YES" ]; then
+     export SUITE="FV3_GFS_v17_p8"
+     export SUITE="FV3_GFS_v16"
+  else
+     export SUITE="FV3_GFS_v17_p8_nonsst"
+     export SUITE="FV3_GFS_v16_no_nsst"
+     #export SUITE="FV3_GFS_v16_coupled_nsstNoahmpUGWPv1"
+  fi
 else
-    echo "no satinfo found"
-    exit 1
-fi
-
-fi
-
-if [ ! -z $HYBENSINFO ]; then
-   /bin/cp -f ${HYBENSINFO} ${datapath}/${analdate}/hybens_info
-fi
-if [ ! -z $HYBENSMOOTHINFO ];  then
-   /bin/cp -f ${HYBENSMOOTHINFO} $datapath2/${analdate}/hybens_smoothinfo
-fi
-
-#------------------------------------------------------------------------
-mkdir -p $datapath
-
-echo "BaseDir: ${basedir}"
-echo "EnKFBin: ${enkfbin}"
-echo "DataPath: ${datapath}"
-
-############################################################################
-# Main Program
-
-env
-echo "starting the cycle (${idate_job} out of ${ndates_job})"
-
-export datapath2="${datapath}/${analdate}/"
-
-# setup node parameters used in blendinc.sh and compute_ensmean_fcst.sh
-export mpitaskspernode=`python -c "from __future__ import print_function; import math; print(int(math.ceil(float(${nanals})/float(${NODES}))))"`
-if [ $mpitaskspernode -lt 1 ]; then
-  export mpitaskspernode 1
-fi
-export OMP_NUM_THREADS=`expr $corespernode \/ $mpitaskspernode`
-echo "mpitaskspernode = $mpitaskspernode threads = $OMP_NUM_THREADS"
-export nprocs=$nanals
-
-export datapathp1="${datapath}/${analdatep1}/"
-export datapathm1="${datapath}/${analdatem1}/"
-mkdir -p $datapathp1
-export CDATE=$analdate
-
-date
-echo "analdate minus 1: $analdatem1"
-echo "analdate: $analdate"
-echo "analdate plus 1: $analdatep1"
-
-# make log dir for analdate
-export current_logdir="${datapath2}/logs"
-echo "Current LogDir: ${current_logdir}"
-mkdir -p ${current_logdir}
-
-export PREINP="${RUN}.t${hr}z."
-export PREINP1="${RUN}.t${hrp1}z."
-export PREINPm1="${RUN}.t${hrm1}z."
-
-# if nanals2>0, extend nanals2 members out to FHMAX_LONGER
-if [ $nanals2 -gt 0 ] && [ $cold_start != "true" ]; then
-  echo "will run $nanals2 members out to hour $FHMAX_LONGER"
-else
-  export nanals2=-1
-  echo "no longer forecast extension"
-fi
-
-if [ $fg_only ==  'false' ]; then
-
-niter=1
-alldone="no"
-while [ $alldone == 'no' ] && [ $niter -le $nitermax ]; do
-   echo "$analdate starting ens mean computation `date`"
-   sh ${enkfscripts}/compute_ensmean_fcst.sh >  ${current_logdir}/compute_ensmean_fcst.out 2>&1
-   errstatus=$?
-   if [ $errstatus -ne 0 ]; then
-       echo "failed computing ensemble mean, try again..."
-       alldone="no"
-       if [ $niter -eq $nitermax ]; then
-           echo "giving up"
-           exit 1
-       fi
-   else
-       echo "$analdate done computing ensemble mean `date`"
-       alldone="yes"
-   fi
-   niter=$((niter+1))
-done
-
-# change resolution of high-res control forecast to ensemble resolution
-# this file only used to calculate analysis increment for replay
-errexit=0
-if [ $replay_controlfcst == 'true' ]; then
-   charnanal='control'
-   echo "$analdate change resolution of control forecast to ens resolution `date`"
-   fh=$FHMIN
-   while [ $fh -le $FHMAX ]; do
-     fhr=`printf %02i $fh`
-     # run concurrently, wait
-     sh ${enkfscripts}/chgres.sh $datapath2/sfg_${analdate}_fhr${fhr}_${charnanal} $datapath2/sfg_${analdate}_fhr${fhr}_ensmean $datapath2/sfg_${analdate}_fhr${fhr}_${charnanal}.chgres > ${current_logdir}/chgres_${fhr}.out 2>&1 &
-     errstatus=$?
-     if [ $errstatus -ne 0 ]; then
-       errexit=$errstatus
-     fi
-     fh=$((fh+FHOUT))
-   done
-   wait
-   if [ $errexit -ne 0 ]; then
-      echo "adjustps/chgres step failed, exiting...."
-      exit 1
-   fi
-   echo "$analdate done changing resolution of control forecast to ens resolution `date`"
-fi
-
-# optionally (partially) recenter ensemble around control forecast.
-if [ $replay_controlfcst == 'true' ] && [ $recenter_control_wgt -gt 0 ] && [ $recenter_fcst == "true" ]; then
-   echo "$analdate (partially) recenter background ensemble around control `date`"
-   export fileprefix="sfg"
-   export charnanal="control.chgres"
-   sh ${enkfscripts}/recenter_ens.sh > ${current_logdir}/recenter_ens_fcst.out 2>&1
-   recenter_done=`cat ${current_logdir}/recenter.log`
-   if [ $recenter_done == 'yes' ]; then
-     echo "$analdate recentering completed successfully `date`"
-   else
-     echo "$analdate recentering did not complete successfully, exiting `date`"
-     exit 1
-   fi
-fi
-
-# if ${datapathm1}/cold_start_bias exists, GSI run in 'observer' mode
-# to generate diag_rad files to initialize angle-dependent 
-# bias correction.
-if [ -f ${datapathm1}/cold_start_bias ]; then
-   export cold_start_bias="true"
-else
-   export cold_start_bias="false"
-fi
-
-# use ensmean mean background for 3dvar analysis/observer calculatino
-if [ $enkfonly != "true" ]; then
-   export charnanal="varanal"
-   export charnanal2='ensmean'
-   export lobsdiag_forenkf='.true.'
-   export skipcat="false"
-   # run Var analysis
-   # symlink ens mean backgrounds to "varanal"
-   fh=$FHMIN
-   while [ $fh -le $FHMAX ]; do
-     fhr=`printf %02i $fh`
-     /bin/ln -fs ${datapath2}/sfg_${analdate}_fhr${fhr}_ensmean ${datapath2}/sfg_${analdate}_fhr${fhr}_${charnanal}
-     /bin/ln -fs ${datapath2}/bfg_${analdate}_fhr${fhr}_ensmean ${datapath2}/bfg_${analdate}_fhr${fhr}_${charnanal}
-     fh=$((fh+FHOUT))
-   done
-   if [ $hybgain == "true" ]; then
-     type="3DVar"
-   else
-     type="hybrid 4DEnVar"
-   fi
-   echo "$analdate run $type `date`"
-   sh ${enkfscripts}/run_gsianal.sh > ${current_logdir}/run_gsianal.out 2>&1
-   # once gsi has completed, check log files.
-   gsi_done=`cat ${current_logdir}/run_gsi_anal.log`
-   if [ $gsi_done == 'yes' ]; then
-    echo "$analdate $type analysis completed successfully `date`"
-   else
-    echo "$analdate $type analysis did not complete successfully, exiting `date`"
-    exit 1
-   fi
-else # just run observer (EnKF only)
-   export charnanal='ensmean' 
-   export charnanal2='ensmean' 
-   export lobsdiag_forenkf='.true.'
-   export skipcat="false"
-  #Create diag files.
-   echo "$analdate run gsi observer with `printenv | grep charnanal` `date`"
-   sh ${enkfscripts}/run_gsiobserver.sh > ${current_logdir}/run_gsi_observer.out 2>&1
-   # once observer has completed, check log files.
-   gsi_done=`cat ${current_logdir}/run_gsi_observer.log`
-   if [ $gsi_done == 'yes' ]; then
-     echo "$analdate gsi observer completed successfully `date`"
-   else
-     echo "$analdate gsi observer did not complete successfully, exiting `date`"
-     exit 1
-   fi
-fi
-
-if [ $jedirun == "true" ]; then
-   echo "Run JEDI for: $analdate start at: `date`"
-   sh ${enkfscripts}/run_jedi.sh
-
-  #jedi_done=`cat ${current_logdir}/run_jedi.log`
-  #if [ $jedi_done == 'yes' ]; then
-  #  echo "$analdate jedi completed successfully `date`"
-  #else
-  #  echo "$analdate jedi did not complete successfully, exiting `date`"
-  #  exit 1
-  #fi
-#else
-#   echo "Did not run JEDI for: $analdate "
-fi
-
-# loop over members run observer sequentially (for testing)
-#export skipcat="false"
-#nanal=0
-#ncount=0
-#while [ $nanal -le $nanals ]; do
-#   if [ $nanal -eq 0 ]; then
-#     export charnanal="ensmean"
-#     export charnanal2="ensmean"
-#   else
-#     export charnanal="mem"`printf %03i $nanal`
-#     export charnanal2=$charnanal 
-#   fi
-#   export lobsdiag_forenkf='.false.'
-#   echo "$analdate run gsi observer with `printenv | grep charnanal` `date`"
-#   sh ${enkfscripts}/run_gsiobserver.sh > ${current_logdir}/run_gsi_observer_${charnanal}.out 2>&1 &
-#   ncount=$((ncount+1))
-#   if [ $ncount -eq $NODES ]; then
-#      echo "waiting at nanal = $nanal ..."
-#      wait
-#      ncount=0
-#   fi
-#   nanal=$((nanal+1))
-#done
-#wait
-#nanal=0
-#while [ $nanal -le $nanals ]; do
-#   if [ $nanal -eq 0 ]; then
-#     export charnanal="ensmean"
-#     export charnanal2="ensmean"
-#   else
-#     export charnanal="mem"`printf %03i $nanal`
-#     export charnanal2=$charnanal 
-#   fi
-#   # once observer has completed, check log files.
-#   gsi_done=`cat ${current_logdir}/run_gsi_observer_${charnanal}.log`
-#   if [ $gsi_done == 'yes' ]; then
-#     echo "$analdate gsi observer $charnanal completed successfully `date`"
-#   else
-#     echo "$analdate gsi observer $charnanal did not complete successfully, exiting `date`"
-#     exit 1
-#   fi
-#   nanal=$((nanal+1))
-#done
-
-# run enkf analysis.
-echo "$analdate run enkf `date`"
-sh ${enkfscripts}/runenkf.sh > ${current_logdir}/run_enkf.out 2>&1
-# once enkf has completed, check log files.
-enkf_done=`cat ${current_logdir}/run_enkf.log`
-if [ $enkf_done == 'yes' ]; then
-  echo "$analdate enkf analysis completed successfully `date`"
-else
-  echo "$analdate enkf analysis did not complete successfully, exiting `date`"
+  echo "LEVS must be 64 or 127"
   exit 1
 fi
 
-# compute ensemble mean analyses.
-if [ $write_ensmean == ".false." ]; then
-   echo "$analdate starting ens mean analysis computation `date`"
-   sh ${enkfscripts}/compute_ensmean_enkf.sh > ${current_logdir}/compute_ensmean_anal.out 2>&1
-   echo "$analdate done computing ensemble mean analyses `date`"
-fi
+# radiance thinning parameters for GSI
+export dmesh1=145
+export dmesh2=145
+export dmesh3=100
 
-# blend enkf mean and 3dvar increments, recenter ensemble
-if [ $enkfonly != "true" ]; then
-if [ $recenter_anal == "true" ]; then
-   if [ $hybgain == "true" ]; then 
-       if [ $alpha -gt 0 ]; then
-       # hybrid gain
-       echo "$analdate blend enkf and 3dvar increments `date`"
-       sh ${enkfscripts}/blendinc.sh > ${current_logdir}/blendinc.out 2>&1
-       blendinc_done=`cat ${current_logdir}/blendinc.log`
-       if [ $blendinc_done == 'yes' ]; then
-         echo "$analdate increment blending/recentering completed successfully `date`"
-       else
-         echo "$analdate increment blending/recentering did not complete successfully, exiting `date`"
-         exit 1
-       fi
-       fi
-   else
-      # hybrid covariance
-      export fileprefix="sanl"
-      echo "$analdate recenter enkf analysis ensemble around varanal analysis `date`"
-      sh ${enkfscripts}/recenter_ens.sh > ${current_logdir}/recenter_ens_anal.out 2>&1
-      recenter_done=`cat ${current_logdir}/recenter.log`
-      if [ $recenter_done == 'yes' ]; then
-        echo "$analdate recentering enkf analysis completed successfully `date`"
-      else
-        echo "$analdate recentering enkf analysis did not complete successfully, exiting `date`"
-        exit 1
-      fi
-   fi
-fi
-fi
+#export use_ipd="YES" # use IPD instead of CCPP
 
-# for passive (replay) cycling of control forecast, optionally run GSI observer
-# on control forecast background (diag files saved with 'control' suffix)
-if [ $replay_controlfcst == 'true' ] && [ $replay_run_observer == "true" ]; then
-   export charnanal='control' 
-   export charnanal2='control' 
-   export lobsdiag_forenkf='.false.'
-   export skipcat="false"
-   echo "$analdate run gsi observer with `printenv | grep charnanal` `date`"
-   sh ${enkfscripts}/run_gsiobserver.sh > ${current_logdir}/run_gsi_observer_control.out 2>&1
-   # once observer has completed, check log files.
-   gsi_done=`cat ${current_logdir}/run_gsi_observer.log`
-   if [ $gsi_done == 'yes' ]; then
-     echo "$analdate gsi observer completed successfully `date`"
-   else
-     echo "$analdate gsi observer did not complete successfully, exiting `date`"
-     exit 1
-   fi
-fi
+# stochastic physics parameters.
+export DO_SPPT=T
+export SPPT=0.5
+export DO_SHUM=T
+export SHUM=0.005
+export DO_SKEB=T
+export SKEB=0.3
+export PERT_MP=.true.
+export PERT_CLDS=.true.
+# turn off stochastic physics
+#export SKEB=0
+#export DO_SKEB=F
+#export SPPT=0
+#export DO_SPPT=F
+#export SHUM=0
+#export DO_SHUM=F
 
-# run gsi observer on ensemble mean forecast extension
-run_gsiobserver=`python -c "from __future__ import print_function; print($FHMAX_LONGER % 6)"`
-if [ $nanals2 -gt 0 ] && [ $run_gsiobserver -ne 0 ] && [ -s $datapath2/sfg2_${analdate}_fhr${FHMAX_LONGER}_ensmean ]; then
-   # symlink ensmean files (fhr12_ensmean --> fhr06_ensmean2, etc)
-   fh=`expr $FHMAX_LONGER - $ANALINC`
-   nhr=3
-   while [ $fh -le $FHMAX_LONGER ]; do
-     fhr=`printf %02i $fh`
-     fhr2=`printf %02i $nhr`
-     /bin/ln -fs ${datapath2}/sfg2_${analdate}_fhr${fhr}_ensmean ${datapath2}/sfg_${analdate}_fhr${fhr2}_ensmean2
-     /bin/ln -fs ${datapath2}/bfg2_${analdate}_fhr${fhr}_ensmean ${datapath2}/bfg_${analdate}_fhr${fhr2}_ensmean2
-     fh=$((fh+FHOUT))
-     nhr=$((nhr+FHOUT))
-   done
-   export charnanal='ensmean2' 
-   export charnanal2='ensmean2' 
-   export lobsdiag_forenkf='.false.'
-   export skipcat="false"
-   echo "$analdate run gsi observer with `printenv | grep charnanal` `date`"
-   sh ${enkfscripts}/run_gsiobserver.sh > ${current_logdir}/run_gsiobserver.out 2>&1
-   # once observer has completed, check log files.
-   gsi_done=`cat ${current_logdir}/run_gsi_observer.log`
-   if [ $gsi_done == 'yes' ]; then
-     echo "$analdate gsi observer completed successfully `date`"
-   else
-     echo "$analdate gsi observer did not complete successfully, exiting `date`"
-     exit 1
-   fi
-fi
+export imp_physics=11 # used by GSI, not model
 
-fi # skip to here if fg_only = true
-
-if [ $replay_controlfcst == 'true' ]; then
-    echo "$analdate run high-res control first guess `date`"
-    sh ${enkfscripts}/run_fg_control.sh  > ${current_logdir}/run_fg_control.out  2>&1
-    control_done=`cat ${current_logdir}/run_fg_control.log`
-    if [ $control_done == 'yes' ]; then
-      echo "$analdate high-res control first-guess completed successfully `date`"
-    else
-      echo "$analdate high-res control did not complete successfully, exiting `date`"
-      exit 1
-    fi
-fi
-
-echo "$analdate run enkf ens first guess `date`"
-sh ${enkfscripts}/run_fg_ens.sh > ${current_logdir}/run_fg_ens.out  2>&1
-ens_done=`cat ${current_logdir}/run_fg_ens.log`
-if [ $ens_done == 'yes' ]; then
-  echo "$analdate enkf first-guess completed successfully `date`"
+# resolution dependent model parameters
+if [ $RES -eq 384 ]; then
+   export JCAP=766
+   export LONB=1536
+   export LATB=768
+   export dt_atmos=225 # for n_split=6
+   export cdmbgwd="1.1,0.72,1.0,1.0"
+elif [ $RES -eq 192 ]; then
+   export JCAP=382 
+   export LONB=768   
+   export LATB=384  
+   export dt_atmos=450
+   #export dt_atmos=225
+   export cdmbgwd="0.23,1.5,1.0,1.0"
+elif [ $RES -eq 128 ]; then
+   export JCAP=254 
+   export LONB=512   
+   export LATB=256  
+   export dt_atmos=720
+   export cdmbgwd="0.19,1.6,1.0,1.0"  
+elif [ $RES -eq 96 ]; then
+   export JCAP=190
+   export LONB=384   
+   export LATB=192  
+   export dt_atmos=600
+   export cdmbgwd="0.14,1.8,1.0,1.0"  # mountain blocking, ogwd, cgwd, cgwd src scaling
+elif [ $RES -eq 48 ]; then
+   export JCAP=94
+   export LONB=192   
+   export LATB=96   
+   export dt_atmos=1800
+   export cdmbgwd="0.071,2.1,1.0,1.0"  
 else
-  echo "$analdate enkf first-guess did not complete successfully, exiting `date`"
-  exit 1
+   echo "model parameters for ensemble resolution C$RES not set"
+   exit 1
 fi
 
-if [ $cold_start == 'false' ]; then
-
-# cleanup
-if [ $do_cleanup == 'true' ]; then
-   sh ${enkfscripts}/clean.sh > ${current_logdir}/clean.out 2>&1
-fi # do_cleanup = true
-
-wait # wait for backgrounded processes to finish
-
-# only save full ensemble data to hpss if checkdate.py returns 0
-# a subset will be saved if save_hpss_subset="true" and save_hpss="true"
-date_check=`python ${homedir}/checkdate.py ${analdate}`
-if [ $date_check -eq 0 ]; then
-  export save_hpss_full="true"
+if [ $RES_CTL -eq 768 ]; then
+   export cdmbgwd_ctl="4.0,0.15,1.0,1.0"
+   export JCAP_CTL=1534
+   export LONB_CTL=3072
+   export LATB_CTL=1536
+   export dt_atmos_ctl=150    
+elif [ $RES_CTL -eq 384 ]; then
+   export dt_atmos_ctl=225
+   export cdmbgwd_ctl="1.1,0.72,1.0,1.0"
+   export JCAP_CTL=766
+   export LONB_CTL=1536
+   export LATB_CTL=768
+elif [ $RES_CTL -eq 192 ]; then
+   export dt_atmos_ctl=450
+   export cdmbgwd_ctl="0.23,1.5,1.0,1.0"
+   export JCAP_CTL=382
+   export LONB_CTL=768  
+   export LATB_CTL=384
+elif [ $RES_CTL -eq 96 ]; then
+   export dt_atmos_ctl=900
+   export cdmbgwd="0.14,1.8,1.0,1.0"  # mountain blocking, ogwd, cgwd, cgwd src scaling
+   export JCAP_CTL=188
+   export LONB_CTL=384  
+   export LATB_CTL=192
 else
-  export save_hpss_full="false"
+   echo "model parameters for control resolution C$RES_CTL not set"
+   exit 1
 fi
-cd $homedir
-if [ $save_hpss == 'true' ]; then
-   cat ${machine}_preamble_hpss hpss.sh > job_hpss.sh
-  #sbatch --export=ALL job_hpss.sh
-   sbatch --export=machine=${machine},analdate=${analdate},datapath2=${datapath2},hsidir=${hsidir},save_hpss_full=${save_hpss_full},save_hpss_subset=${save_hpss_subset} job_hpss.sh
+export FHCYC=6 # if == 0 run global_cycle instead of gcycle inside model
+#export FHCYC=0 # if == 0 run global_cycle instead of gcycle inside model
+
+# analysis is done at ensemble resolution
+export LONA=$LONB
+export LATA=$LATB      
+
+export ANALINC=6
+
+export FHMIN=6
+export FHMAX=7
+export FHOUT=6
+export RESTART_FREQ=6
+FHMAXP1=`expr $FHMAX + 1`
+# if FHMAX_LONGER divisible by 6, only the last output time saved.
+# if not divisible by 6, all times in 6-h window at the end of forecast saved
+# so GSI observer can be run.
+export FHMAX_LONGER=12
+export enkfstatefhrs=`python -c "from __future__ import print_function; print(list(range(${FHMIN},${FHMAXP1},${FHOUT})))" | cut -f2 -d"[" | cut -f1 -d"]"`
+export iaufhrs="3,6,9"
+export iau_delthrs="6" # iau_delthrs < 0 turns IAU off
+# IAU off
+export iaufhrs="6"
+export iau_delthrs=-1
+
+# other model variables set in ${rungfs}
+# other gsi variables set in ${rungsi}
+
+export RUN=gdas # use gdas or gfs obs
+
+# Analysis increments to zero out
+export INCREMENTS_TO_ZERO="'liq_wat_inc','icmr_inc'"
+# Stratospheric increments to zero
+export INCVARS_ZERO_STRAT="'sphum_inc','liq_wat_inc','icmr_inc'"
+export INCVARS_EFOLD="5"
+export write_fv3_increment=".false." # don't change this
+export WRITE_INCR_ZERO="incvars_to_zero= $INCREMENTS_TO_ZERO,"
+export WRITE_ZERO_STRAT="incvars_zero_strat= $INCVARS_ZERO_STRAT,"
+export WRITE_STRAT_EFOLD="incvars_efold= $INCVARS_EFOLD,"
+export use_correlated_oberrs=".true."
+# NOTE: most other GSI namelist variables are in ${rungsi}
+
+export SMOOTHINF=35 # inflation smoothing (spectral truncation)
+export covinflatemax=1.e2
+export reducedgrid=.false. # if T, used reduced gaussian analysis grid in EnKF
+export covinflatemin=1.0                                            
+export analpertwtnh=0.85
+export analpertwtsh=0.85
+export analpertwttr=0.85
+export analpertwtnh_rtpp=0.0
+export analpertwtsh_rtpp=0.0
+export analpertwttr_rtpp=0.0
+export pseudo_rh=.true.
+export write_ensmean=.true. # write out ens mean analysis in EnKF
+if [[ $write_ensmean == ".true." ]]; then
+   export ENKFVARS="write_ensmean=${write_ensmean},"
 fi
+export letkf_flag=.true.
+export letkf_bruteforce_search=.false.
+export denkf=.true.
+export getkf=.true.
+export getkf_inflation=.false.
+export modelspace_vloc=.true.
+export letkf_novlocal=.true.
+export nobsl_max=10000
+export corrlengthnh=2000
+export corrlengthtr=2000
+export corrlengthsh=2000
+# The lnsigcutoff* parameters are ignored if modelspace_vloc=T
+export lnsigcutoffnh=1.5
+export lnsigcutofftr=1.5
+export lnsigcutoffsh=1.5
+export lnsigcutoffpsnh=1.5
+export lnsigcutoffpstr=1.5
+export lnsigcutoffpssh=1.5
+export lnsigcutoffsatnh=1.5 
+export lnsigcutoffsattr=1.5  
+export lnsigcutoffsatsh=1.5  
+export paoverpb_thresh=0.998  # ignored for LETKF, set to 1 to use all obs in serial EnKF
+export saterrfact=1.0
+export deterministic=.true.
+export sortinc=.true.
 
-fi # skip to here if cold_start = true
+# these only used for hybrid covariance (hyb 4denvar) in GSI
+export beta_s0=`python -c "from __future__ import print_function; print($alpha / 1000.)"` # weight given to static B in hyb cov
+# beta_e0 parameter (ensemble weight) in my GSI branch (not in GSI/develop)
+export beta_e0=`python -c "from __future__ import print_function; print($beta / 1000.)"` # weight given to ensemble B in hyb cov
+export s_ens_h=343.     # 1250 km horiz localization in GSI
+#export s_ens_v=-0.58    # 1.5 scale heights in GSI
+if [ $LEVS -eq 64 ]; then
+  export s_ens_v=5.4 # 14 levels
+elif [ $LEVS -eq 127 ]; then
+  export s_ens_v=7.7 # 20 levels
+fi
+# use pre-generated bias files.
+#export biascorrdir=${datadir}/biascor
+export biascorrdir=${datapath}/2020010100
 
-echo "$analdate all done"
+export nanals=80                                                    
+# if nanals2>0, extend nanals2 members out to FHMAX + ANALINC (one extra assim window)
+export nanals2=-1 # longer extension. Set to -1 to disable 
+#export nanals2=$NODES
+#export nanals2=$nanals
+export nitermax=1 # number of retries
+export enkfscripts="${basedir}/scripts/${exptname}"
+export homedir=$enkfscripts
+export incdate="${enkfscripts}/incdate.sh"
 
-# next analdate: increment by $ANALINC
-export analdate=`${incdate} $analdate $ANALINC`
-
-echo "export analdate=${analdate}" > $startupenv
-echo "export analdate_end=${analdate_end}" >> $startupenv
-echo "export fg_only=false" > $datapath/fg_only.sh
-echo "export cold_start=false" >> $datapath/fg_only.sh
-
-cd $homedir
-
-if [ $analdate -le $analdate_end ]; then
-  idate_job=$((idate_job+1))
+if [ "$machine" == 'hera' ]; then
+   export FIXDIR=/scratch1/NCEPDEV/nems/emc.nemspara/RT/NEMSfv3gfs/input-data-20220414
+   #export FIXDIR_gcyc=$FIXDIR
+   export FIXDIR_gcyc=/scratch1/NCEPDEV/global/glopara/fix_NEW # for GFSv16
+   export python=/contrib/anaconda/2.3.0/bin/python
+   export gsipath=${basedir}/gsi/GSI
+   export fixgsi=${gsipath}/fix
+   export fixcrtm=/scratch2/NCEPDEV/nwprod/NCEPLIBS/fix/crtm_v2.3.0
+   export execdir=${enkfscripts}/exec_${machine}
+   export enkfbin=${execdir}/global_enkf
+   export gsiexec=${execdir}/global_gsi
+   export CHGRESEXEC=${execdir}/enkf_chgres_recenter_nc.x
+elif [ "$machine" == 'orion' ]; then
+   export FIXDIR=/work/noaa/nems/emc.nemspara/RT/NEMSfv3gfs/input-data-20220414
+   #export FIXDIR_gcyc=$FIXDIR
+   export FIXDIR_gcyc=/work/noaa/global/glopara/fix_NEW # for GFSv16
+   export python=`which python`
+   export fv3gfspath=/work/noaa/global/glopara
+   export FIXFV3=$fv3gfspath/fix_nco_gfsv16/fix_fv3_gmted2010
+   export FIXGLOBAL=$fv3gfspath/fix_nco_gfsv16/fix_am
+   export gsipath=/work/noaa/gsienkf/whitaker/GSI
+   export fixgsi=${gsipath}/fix
+   #export fixcrtm=${basedir}/fix/crtm/v2.2.6/fix
+   export fixcrtm=$fv3gfspath/crtm/crtm_v2.3.0
+   export execdir=${enkfscripts}/exec_${machine}
+   export enkfbin=${execdir}/global_enkf
+   export gsiexec=${execdir}/global_gsi
+   export CHGRESEXEC=${execdir}/enkf_chgres_recenter_nc.x
+elif [ "$machine" == 'gaea' ]; then
+   export python=/ncrc/sw/gaea/PythonEnv-noaa/1.4.0/.spack/opt/spack/linux-sles12-x86_64/gcc-4.8/python-2.7.14-zyx34h36bfp2c6ftp5bhdsdduqjxbvp6/bin/python
+   #export PYTHONPATH=/ncrc/home2/Jeffrey.S.Whitaker/anaconda2/lib/python2.7/site-packages
+   #export fv3gfspath=/lustre/f1/pdata/ncep_shared/fv3/fix-fv3gfs/
+   export fv3gfspath=/lustre/f2/dev/Jeffrey.S.Whitaker/fv3_reanl/fv3gfs/global_shared.v15.0.0
+   export FIXFV3=${fv3gfspath}/fix/fix_fv3_gmted2010
+   export FIXGLOBAL=${fv3gfspath}/fix/fix_am
+   export gsipath=/lustre/f2/dev/Jeffrey.S.Whitaker/GSI-github-jswhit
+   export fixgsi=${gsipath}/fix
+   export fixcrtm=/lustre/f2/pdata/ncep_shared/NCEPLIBS/lib/crtm/v2.2.6/fix
+   #export fixcrtm=${fixgsi}/crtm_v2.2.3
+   export execdir=${enkfscripts}/exec_${machine}
+   export enkfbin=${execdir}/global_enkf
+   export gsiexec=${execdir}/global_gsi
+   export CHGRESEXEC=${execdir}/enkf_chgres_recenter_nc.x
 else
-  idate_job=$((ndates_job+1))
+   echo "${machine} unsupported machine"
+   exit 1
+fi
+# set to .true. to run hydrostatic version of model 
+export hydrostatic=.false.
+if [ $hydrostatic == ".true." ]; then
+   export FCSTEXEC=${execdir}/fv3-hydro.exe
+else
+   export FCSTEXEC=${execdir}/fv3-nonhydro.exe
 fi
 
-done # next analysis time
 
+#export ANAVINFO=${fixgsi}/global_anavinfo_allhydro.l${LEVS}.txt
+export ANAVINFO=${fixgsi}/global_anavinfo.l${LEVS}.txt
+export ANAVINFO_ENKF=${ANAVINFO}
+export HYBENSINFO=${fixgsi}/global_hybens_info.l${LEVS}.txt # only used if readin_beta or readin_localization=T
+#export HYBENSINFO=${enkfscripts}/global_hybens_info.l${LEVS}.txt # only used if readin_beta or readin_localization=T
+# comment out next line to disable smoothing of ensemble perturbations
+# in stratosphere/mesosphere
+#export HYBENSMOOTHINFO=${fixgsi}/global_hybens_smoothinfo.l${LEVS}.txt
+export OZINFO=${fixgsi}/global_ozinfo.txt
+export CONVINFO=${enkfscripts}/global_convinfo.txt.sondesonly
+export SATINFO=${fixgsi}/global_satinfo.txt
+export NLAT=$((${LATA}+2))
+# default is to use berror file in gsi fix dir.
+#export BERROR=${basedir}/staticB/global_berror_enkf.l${LEVS}y${NLAT}.f77
+#export BERROR=${basedir}/staticB/24h/global_berror.l${LEVS}y${NLAT}.f77_janjulysmooth0p5
+#export BERROR=${basedir}/staticB/24h/global_berror.l${LEVS}y${NLAT}.f77_annmeansmooth0p5
+export REALTIME=YES # if NO, use historical files set in main.sh
 
-if [ $analdate -le $analdate_end ]  && [ $resubmit == 'true' ]; then
-   echo "current time is $analdate"
-   if [ $resubmit == 'true' ]; then
-      echo "resubmit script"
-      echo "machine = $machine"
-      cat ${machine}_preamble config.sh > job.sh
-      sbatch --export=ALL job.sh
+cd $enkfscripts
+echo "run main driver script"
+if [ $controlanal == "true" ]; then
+   # run as in NCEP ops, with high-res control forecast updated by GSI hyb 4denvar,
+   # and enkf analysis recentered around upscaled control analysis.
+   # use static B weights and localization scales for GSI from files.
+   # (s_ens_h, s_ens_v, beta_s0, beta_e0 will be ignored)
+   export readin_localization=".true."
+   export readin_beta=".true."
+   export replay_controlfcst=".false."
+   export hybgain=".false." # controlanal takes precedence over hybgain
+   export HYBENSINFO=${fixgsi}/global_hybens_info.l${LEVS}.txt # only used if readin_beta or readin_localization=T
+   # uncomment to smooth ensemble perturbations
+   #export HYBENSMOOTHINFO=${fixgsi}/global_hybens_smoothinfo.l${LEVS}.txt
+   sh ./main_controlanal.sh
+else
+   # GSI sees ensemble mean background (high-res control forecast is a replay to ens mean analysis)
+   # (s_ens_h, s_ens_v, beta_s0, beta_e0, alpha, beta used)
+   if [ $hybgain == "false" ]; then
+      # use static B weights and localization scales for GSI from files.
+      # (beta_s0, beta_e0 ignored)
+      #export readin_localization=".true."
+      #export readin_beta=".true."
+      # use constant values (beta_s0,beta_e0 parameters)
+      export readin_beta=.false.
+      export readin_localization=.false.
+      # these only used for hybrid covariance (hyb 4denvar) in GSI
+      export beta_s0=`python -c "from __future__ import print_function; print($alpha / 1000.)"` # weight given to static B in hyb cov
+      # beta_e0 parameter (ensemble weight) in my GSI branch (not in GSI/develop)
+      export beta_e0=`python -c "from __future__ import print_function; print($beta / 1000.)"` # weight given to ensemble B in hyb cov
+   else
+      export beta_s0=1.000 # 3dvar
+      export beta_e0=0.0
+      export readin_beta=.false.
+      export readin_localization=.false.
    fi
+   sh ./main.sh
 fi
-
-exit 0
