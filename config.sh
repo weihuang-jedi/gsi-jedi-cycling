@@ -36,22 +36,14 @@ export ensda="enkf_run.sh"
 export rungsi='run_gsi_4densvar.sh'
 export rungfs='run_fv3.sh' # ensemble forecast
 
-#export do_cleanup='true' # if true, create tar files, delete *mem* files.
-#export cleanup_fg='true'
-#export cleanup_ensmean='true'
-#export cleanup_ensmean_enkf='true'
-#export cleanup_anal='true'
-#export cleanup_controlanl='true'
-#export cleanup_observer='true' 
-#export resubmit='true'
-export do_cleanup='false' # if true, create tar files, delete *mem* files.
-export cleanup_fg='false'
-export cleanup_ensmean='false'
-export cleanup_ensmean_enkf='false'
-export cleanup_anal='false'
-export cleanup_controlanl='false'
-export cleanup_observer='false' 
-export resubmit='false'
+export do_cleanup='true' # if true, create tar files, delete *mem* files.
+export cleanup_fg='true'
+export cleanup_ensmean='true'
+export cleanup_ensmean_enkf='true'
+export cleanup_anal='true'
+export cleanup_controlanl='true'
+export cleanup_observer='true' 
+export resubmit='true'
 export replay_run_observer='false' # run observer on replay control forecast
 # python script checkdate.py used to check
 # YYYYMMDDHH analysis date string to see if
@@ -80,17 +72,16 @@ export cleanup_observer='false'
 export cleanup_anal='false'
 export recenter_anal="false"
 export cleanup_fg='false'
-#export resubmit='false'
-export resubmit='true'
+export resubmit='false'
 export do_cleanup='false'
 export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
 export save_hpss="false"
 
 source $MODULESHOME/init/sh
 if [ "$machine" == 'hera' ]; then
-   export basedir=/scratch2/BMC/gsienkf/${USER}
+   export basedir=/scratch2/BMC/gsienkf/Wei.Huang/producttion/run
    export datadir=$basedir
-   export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
+   export hsidir="/ESRL/BMC/gsienkf/weihuang/${exptname}"
    export obs_datapath=/scratch1/NCEPDEV/global/glopara/dump
    module purge
    module use /scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack
@@ -105,8 +96,7 @@ if [ "$machine" == 'hera' ]; then
    module load wgrib
    export WGRIB=`which wgrib`
 elif [ "$machine" == 'orion' ]; then
-  #export basedir=/work2/noaa/gsienkf/${USER}
-   export basedir=/work2/noaa/gsienkf/weihuang/gsi
+   export basedir=/work2/noaa/gsienkf/${USER}
    export datadir=$basedir
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
    export obs_datapath=/work/noaa/rstprod/dump
@@ -121,8 +111,7 @@ elif [ "$machine" == 'orion' ]; then
    module load python/3.7.5
    module load hdf5/1.10.6-parallel
    module load wgrib/1.8.0b
-  #export PYTHONPATH=/home/jwhitake/.local/lib/python3.7/site-packages
-   export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib
+   export PYTHONPATH=/home/jwhitake/.local/lib/python3.7/site-packages
    export HDF5_DISABLE_VERSION_CHECK=1
    export WGRIB=`which wgrib`
 elif [ "$machine" == 'gaea' ]; then
@@ -254,7 +243,7 @@ elif [ $RES -eq 128 ]; then
    export dt_atmos=720
    export cdmbgwd="0.19,1.6,1.0,1.0"  
 elif [ $RES -eq 96 ]; then
-   export JCAP=190
+   export JCAP=190 
    export LONB=384   
    export LATB=192  
    export dt_atmos=600
@@ -393,7 +382,6 @@ elif [ $LEVS -eq 127 ]; then
   export s_ens_v=7.7 # 20 levels
 fi
 # use pre-generated bias files.
-#export biascorrdir=${datadir}/biascor
 export biascorrdir=${datapath}/2020010100
 
 export nanals=80                                                    
@@ -410,7 +398,8 @@ if [ "$machine" == 'hera' ]; then
    export FIXDIR=/scratch1/NCEPDEV/nems/emc.nemspara/RT/NEMSfv3gfs/input-data-20220414
    #export FIXDIR_gcyc=$FIXDIR
    export FIXDIR_gcyc=/scratch1/NCEPDEV/global/glopara/fix_NEW # for GFSv16
-   export python=/contrib/anaconda/2.3.0/bin/python
+  #export python=/contrib/anaconda/2.3.0/bin/python
+   export python=/contrib/anaconda/anaconda3/latest/bin/python
    export gsipath=${basedir}/gsi/GSI
    export fixgsi=${gsipath}/fix
    export fixcrtm=/scratch2/NCEPDEV/nwprod/NCEPLIBS/fix/crtm_v2.3.0

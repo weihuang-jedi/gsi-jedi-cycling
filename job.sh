@@ -1,25 +1,24 @@
 #!/bin/sh
-##SBATCH -q urgent
-#SBATCH -t 00:30:00
-#SBATCH -A gsienkf
-#SBATCH -N 20  
 #SBATCH --ntasks-per-node=40
-#SBATCH -p orion
+#SBATCH -t 01:30:00
+#SBATCH -A gsienkf  
+#SBATCH -N 20    
+#SBATCH --partition=hera
 #SBATCH -J gsi_C96_lgetkf_sondesonly
 #SBATCH -e gsi_C96_lgetkf_sondesonly.err
 #SBATCH -o gsi_C96_lgetkf_sondesonly.out
 
 export NODES=$SLURM_NNODES
 export corespernode=$SLURM_CPUS_ON_NODE
-export machine='orion'
+export machine='hera'
 
 # for control forecast
 if [ $NODES -eq 20 ]; then
   # 20 nodes, 2 threads
   export control_threads=2
   export control_proc=800
-  export write_groups_ctl=4 # write groups for control forecast.
-  export write_tasks_ctl=4
+  export write_groups_ctl=2 # write groups for control forecast.
+  export write_tasks_ctl=8
   export layout_ctl="8,8" # layout_x,layout_y (total # mpi tasks = $layout_x*$layout_y*6=($fg_proc/$fg_threads) - $write_tasks*$write_groups)
 elif [ $NODES -eq 40 ]; then
   # 40 nodes, 4 threads
@@ -47,21 +46,25 @@ else
 fi
 
 # for ensemble forecast and GSI
-# for C192
-export fg_proc=$corespernode
-export fg_threads=1 
-export enkf_threads=10
+
+# C192 ensemble, C384 control
+export fg_proc=$corespernode 
+export fg_threads=1
+#export fg_proc=`expr 2 \* $corespernode` 
+#export fg_threads=2
+export enkf_threads=10 
 export gsi_control_threads=4
 export write_groups=4
+# 40 cores per node 
 export write_tasks=1 
 export layout="3, 2"
 
-# for C384
-#export fg_proc=`expr 4 \* $corespernode`
-#export fg_threads=1 
+# C384 ensemble, C768 control (run with 80 nodes)
+#export fg_proc=`expr 4 \* $corespernode` # C384
+#export fg_threads=1  
 #export enkf_threads=40
-#export gsi_control_threads=20
-#export write_groups=4
+#export gsi_control_threads=40
+# 40 cores per node
 #export write_tasks=4 
 #export layout="6, 4"
 # hybrid gain GSI(3DVar)/EnKF workflow
@@ -102,22 +105,14 @@ export ensda="enkf_run.sh"
 export rungsi='run_gsi_4densvar.sh'
 export rungfs='run_fv3.sh' # ensemble forecast
 
-#export do_cleanup='true' # if true, create tar files, delete *mem* files.
-#export cleanup_fg='true'
-#export cleanup_ensmean='true'
-#export cleanup_ensmean_enkf='true'
-#export cleanup_anal='true'
-#export cleanup_controlanl='true'
-#export cleanup_observer='true' 
-#export resubmit='true'
-export do_cleanup='false' # if true, create tar files, delete *mem* files.
-export cleanup_fg='false'
-export cleanup_ensmean='false'
-export cleanup_ensmean_enkf='false'
-export cleanup_anal='false'
-export cleanup_controlanl='false'
-export cleanup_observer='false' 
-export resubmit='false'
+export do_cleanup='true' # if true, create tar files, delete *mem* files.
+export cleanup_fg='true'
+export cleanup_ensmean='true'
+export cleanup_ensmean_enkf='true'
+export cleanup_anal='true'
+export cleanup_controlanl='true'
+export cleanup_observer='true' 
+export resubmit='true'
 export replay_run_observer='false' # run observer on replay control forecast
 # python script checkdate.py used to check
 # YYYYMMDDHH analysis date string to see if
@@ -146,17 +141,16 @@ export cleanup_observer='false'
 export cleanup_anal='false'
 export recenter_anal="false"
 export cleanup_fg='false'
-#export resubmit='false'
-export resubmit='true'
+export resubmit='false'
 export do_cleanup='false'
 export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
 export save_hpss="false"
 
 source $MODULESHOME/init/sh
 if [ "$machine" == 'hera' ]; then
-   export basedir=/scratch2/BMC/gsienkf/${USER}
+   export basedir=/scratch2/BMC/gsienkf/Wei.Huang/producttion/run
    export datadir=$basedir
-   export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
+   export hsidir="/ESRL/BMC/gsienkf/weihuang/${exptname}"
    export obs_datapath=/scratch1/NCEPDEV/global/glopara/dump
    module purge
    module use /scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack
@@ -171,8 +165,7 @@ if [ "$machine" == 'hera' ]; then
    module load wgrib
    export WGRIB=`which wgrib`
 elif [ "$machine" == 'orion' ]; then
-  #export basedir=/work2/noaa/gsienkf/${USER}
-   export basedir=/work2/noaa/gsienkf/weihuang/gsi
+   export basedir=/work2/noaa/gsienkf/${USER}
    export datadir=$basedir
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
    export obs_datapath=/work/noaa/rstprod/dump
@@ -187,8 +180,7 @@ elif [ "$machine" == 'orion' ]; then
    module load python/3.7.5
    module load hdf5/1.10.6-parallel
    module load wgrib/1.8.0b
-  #export PYTHONPATH=/home/jwhitake/.local/lib/python3.7/site-packages
-   export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib
+   export PYTHONPATH=/home/jwhitake/.local/lib/python3.7/site-packages
    export HDF5_DISABLE_VERSION_CHECK=1
    export WGRIB=`which wgrib`
 elif [ "$machine" == 'gaea' ]; then
@@ -320,7 +312,7 @@ elif [ $RES -eq 128 ]; then
    export dt_atmos=720
    export cdmbgwd="0.19,1.6,1.0,1.0"  
 elif [ $RES -eq 96 ]; then
-   export JCAP=190
+   export JCAP=190 
    export LONB=384   
    export LATB=192  
    export dt_atmos=600
@@ -459,7 +451,6 @@ elif [ $LEVS -eq 127 ]; then
   export s_ens_v=7.7 # 20 levels
 fi
 # use pre-generated bias files.
-#export biascorrdir=${datadir}/biascor
 export biascorrdir=${datapath}/2020010100
 
 export nanals=80                                                    
@@ -476,7 +467,8 @@ if [ "$machine" == 'hera' ]; then
    export FIXDIR=/scratch1/NCEPDEV/nems/emc.nemspara/RT/NEMSfv3gfs/input-data-20220414
    #export FIXDIR_gcyc=$FIXDIR
    export FIXDIR_gcyc=/scratch1/NCEPDEV/global/glopara/fix_NEW # for GFSv16
-   export python=/contrib/anaconda/2.3.0/bin/python
+  #export python=/contrib/anaconda/2.3.0/bin/python
+   export python=/contrib/anaconda/anaconda3/latest/bin/python
    export gsipath=${basedir}/gsi/GSI
    export fixgsi=${gsipath}/fix
    export fixcrtm=/scratch2/NCEPDEV/nwprod/NCEPLIBS/fix/crtm_v2.3.0
