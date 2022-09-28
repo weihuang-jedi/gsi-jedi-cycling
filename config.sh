@@ -36,15 +36,21 @@ export ensda="enkf_run.sh"
 export rungsi='run_gsi_4densvar.sh'
 export rungfs='run_fv3.sh' # ensemble forecast
 
-export do_cleanup='true' # if true, create tar files, delete *mem* files.
-export cleanup_fg='true'
-export cleanup_ensmean='true'
-export cleanup_ensmean_enkf='true'
-export cleanup_anal='true'
-export cleanup_controlanl='true'
-export cleanup_observer='true' 
-export resubmit='true'
-export replay_run_observer='false' # run observer on replay control forecast
+#export jedirun='false'
+export jedirun='true'
+export jedidatadir=/scratch2/BMC/gsienkf/Wei.Huang/producttion/Data
+export jeditemplatedir=/scratch2/BMC/gsienkf/Wei.Huang/producttion/utils/templates
+export jediblddir=/scratch2/BMC/gsienkf/Wei.Huang/jedi/dev/build/intel
+
+#export do_cleanup='true' # if true, create tar files, delete *mem* files.
+#export cleanup_fg='true'
+#export cleanup_ensmean='true'
+#export cleanup_ensmean_enkf='true'
+#export cleanup_anal='true'
+#export cleanup_controlanl='true'
+#export cleanup_observer='true' 
+#export resubmit='true'
+#export replay_run_observer='false' # run observer on replay control forecast
 # python script checkdate.py used to check
 # YYYYMMDDHH analysis date string to see if
 # full ensemble should be saved to HPSS (returns 0 if 
@@ -72,10 +78,11 @@ export cleanup_observer='false'
 export cleanup_anal='false'
 export recenter_anal="false"
 export cleanup_fg='false'
-export resubmit='false'
 export do_cleanup='false'
 export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
 export save_hpss="false"
+
+export resubmit='true'
 
 source $MODULESHOME/init/sh
 if [ "$machine" == 'hera' ]; then
@@ -243,7 +250,7 @@ elif [ $RES -eq 128 ]; then
    export dt_atmos=720
    export cdmbgwd="0.19,1.6,1.0,1.0"  
 elif [ $RES -eq 96 ]; then
-   export JCAP=190 
+   export JCAP=190
    export LONB=384   
    export LATB=192  
    export dt_atmos=600
