@@ -4,3 +4,5 @@
 *.stdout
 exec_hera
 exec_orion
+*.nc
+*.nc4

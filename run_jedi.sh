@@ -22,12 +22,14 @@ export month=`echo $analdate |cut -c 5-6`
 export day=`echo $analdate |cut -c 7-8`
 export hour=`echo $analdate |cut -c 9-10`
 
-source /work2/noaa/gsienkf/weihuang/production/util/intelenv
+#source /work2/noaa/gsienkf/weihuang/production/util/intelenv
+source ~/intelenv
 
-module rm python/3.9.2
+#module rm python/3.9.2
+module rm intelpython
 
 #ioda-bundle build dir:
-export blddir=/work2/noaa/gsienkf/weihuang/production/build/ioda-bundle
+export blddir=/scratch2/BMC/gsienkf/Wei.Huang/jedi/dev/ioda-bundle-build
 export PYTHONPATH=${blddir}/lib/python3.9/pyioda:$PYTHONPATH
 
 #output dir.
@@ -138,6 +140,7 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
     ${jeditemplatedir}/${casename}.obs.yaml.template >> getkf.yaml
 
 #export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
+export jediblddir=/scratch2/BMC/gsienkf/Wei.Huang/jedi/dev/build/intel
 export LD_LIBRARY_PATH=${jediblddir}/lib:$LD_LIBRARY_PATH
 executable=$jediblddir/bin/fv3jedi_letkf.x
 
@@ -166,7 +169,7 @@ srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \
 python ${enkfscripts}/pool_trans.py \
    --jedidir=${datapath} \
    --datestr=${analdate} \
-   --gsifile=/work2/noaa/gsienkf/weihuang/production/run/transform/fv3_increment6.nc
+   --gsifile=${enkfscripts}/fv3_increment6.nc
 
 jedi_done=no
 
