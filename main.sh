@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -x
+
 # main driver script
 # gsi gain or gsi covariance GSI EnKF (based on ensemble mean background)
 # optional high-res control fcst replayed to ens mean analysis

@@ -12,6 +12,8 @@ export NODES=$SLURM_NNODES
 export corespernode=$SLURM_CPUS_ON_NODE
 export machine='hera'
 
+set -x
+
 # for control forecast
 if [ $NODES -eq 20 ]; then
   # 20 nodes, 2 threads
