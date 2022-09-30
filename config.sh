@@ -98,7 +98,8 @@ if [ "$machine" == 'hera' ]; then
    export WGRIB=`which wgrib`
 elif [ "$machine" == 'orion' ]; then
   #export basedir=/work2/noaa/gsienkf/${USER}
-   export basedir=/work2/noaa/gsienkf/weihuang/gsi
+  #export basedir=/work2/noaa/gsienkf/weihuang/gsi
+   export basedir=/work2/noaa/da/weihuang/cycling
    export datadir=$basedir
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
    export obs_datapath=/work/noaa/rstprod/dump
@@ -249,7 +250,8 @@ elif [ $RES -eq 96 ]; then
    export JCAP=190
    export LONB=384   
    export LATB=192  
-   export dt_atmos=600
+  #export dt_atmos=600   #Original
+   export dt_atmos=300
    export cdmbgwd="0.14,1.8,1.0,1.0"  # mountain blocking, ogwd, cgwd, cgwd src scaling
 elif [ $RES -eq 48 ]; then
    export JCAP=94
