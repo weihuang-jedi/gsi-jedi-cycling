@@ -184,7 +184,8 @@ if [ "$machine" == 'hera' ]; then
    export WGRIB=`which wgrib`
 elif [ "$machine" == 'orion' ]; then
   #export basedir=/work2/noaa/gsienkf/${USER}
-   export basedir=/work2/noaa/gsienkf/weihuang/gsi
+  #export basedir=/work2/noaa/gsienkf/weihuang/gsi
+   export basedir=/work2/noaa/da/weihuang/cycling
    export datadir=$basedir
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
    export obs_datapath=/work/noaa/rstprod/dump
