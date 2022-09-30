@@ -304,6 +304,7 @@ else # just run observer (EnKF only)
    export charnanal2='ensmean' 
    export lobsdiag_forenkf='.true.'
    export skipcat="false"
+  #Create diag files.
    echo "$analdate run gsi observer with `printenv | grep charnanal` `date`"
    sh ${enkfscripts}/run_gsiobserver.sh > ${current_logdir}/run_gsi_observer.out 2>&1
    # once observer has completed, check log files.
@@ -314,6 +315,21 @@ else # just run observer (EnKF only)
      echo "$analdate gsi observer did not complete successfully, exiting `date`"
      exit 1
    fi
+fi
+
+if [ $jedirun == "true" ] && [ $cold_start == 'false' ]; then
+   echo "Run JEDI for: $analdate start at: `date`"
+   sh ${enkfscripts}/run_jedi.sh
+
+  #jedi_done=`cat ${current_logdir}/run_jedi.log`
+  #if [ $jedi_done == 'yes' ]; then
+  #  echo "$analdate jedi completed successfully `date`"
+  #else
+  #  echo "$analdate jedi did not complete successfully, exiting `date`"
+  #  exit 1
+  #fi
+#else
+#   echo "Did not run JEDI for: $analdate "
 fi
 
 # loop over members run observer sequentially (for testing)
@@ -504,9 +520,9 @@ fi
 cd $homedir
 if [ $save_hpss == 'true' ]; then
    cat ${machine}_preamble_hpss hpss.sh > job_hpss.sh
+  #sbatch --export=ALL job_hpss.sh
+   sbatch --export=machine=${machine},analdate=${analdate},datapath2=${datapath2},hsidir=${hsidir},save_hpss_full=${save_hpss_full},save_hpss_subset=${save_hpss_subset} job_hpss.sh
 fi
-#sbatch --export=ALL job_hpss.sh
-sbatch --export=machine=${machine},analdate=${analdate},datapath2=${datapath2},hsidir=${hsidir},save_hpss_full=${save_hpss_full},save_hpss_subset=${save_hpss_subset} job_hpss.sh
 
 fi # skip to here if cold_start = true
 
