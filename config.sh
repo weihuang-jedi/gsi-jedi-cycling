@@ -258,7 +258,8 @@ elif [ $RES -eq 96 ]; then
    export JCAP=190
    export LONB=384   
    export LATB=192  
-   export dt_atmos=600
+  #export dt_atmos=600   #Original setup. It blows up at 2020010618.
+   export dt_atmos=300
    export cdmbgwd="0.14,1.8,1.0,1.0"  # mountain blocking, ogwd, cgwd, cgwd src scaling
 elif [ $RES -eq 48 ]; then
    export JCAP=94
