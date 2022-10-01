@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 # model was compiled with these 
 echo "starting at `date`"
 source $MODULESHOME/init/sh
 
-module list
+set -x
 
 export VERBOSE=${VERBOSE:-"NO"}
 hydrostatic=${hydrostatic:=".false."}
@@ -25,12 +25,14 @@ export hour=`echo $analdate |cut -c 9-10`
 #source /work2/noaa/gsienkf/weihuang/production/util/intelenv
 source ~/intelenv
 
-#module rm python/3.9.2
+module rm python/3.9.2
 module rm intelpython
+
+module list
 
 #ioda-bundle build dir:
 export blddir=/scratch2/BMC/gsienkf/Wei.Huang/jedi/dev/ioda-bundle-build
-export PYTHONPATH=${blddir}/lib/python3.9/pyioda:$PYTHONPATH
+export PYTHONPATH=${blddir}/lib/python3.7/pyioda:$PYTHONPATH
 
 #output dir.
 output_dir=${datapath}/${analdate}/ioda_v2_data
@@ -44,6 +46,7 @@ mkdir -p ${temp_dir}
 rm -rf ${temp_dir}/*
 cd ${temp_dir}
 cp ${run_dir}/diag_conv_* .
+cd ${run_dir}
  
 #Convert GSI diag 2 ioda2 format
 python ${blddir}/bin/proc_gsi_ncdiag.py -o ${output_dir} ${temp_dir}

@@ -15,6 +15,8 @@ idate_job=1
 
 while [ $idate_job -le ${ndates_job} ]; do
 
+echo "datapath/fg_only.sh: $datapath/fg_only.sh"
+
 source $datapath/fg_only.sh # define fg_only variable.
 
 export startupenv="${datapath}/analdate.sh"
@@ -467,7 +469,7 @@ fi # skip to here if fg_only = true
 #Create diag files.
 if [ $jedirun == "true" ]; then
    echo "Run JEDI for: $analdate start at: `date`"
-   sh ${enkfscripts}/run_jedi.sh
+   bash ${enkfscripts}/run_jedi.sh
 
    jedi_done=`cat ${current_logdir}/run_jedi.log`
    if [ $jedi_done == 'yes' ]; then

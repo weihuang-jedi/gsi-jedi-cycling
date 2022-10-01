@@ -69,6 +69,8 @@ export layout="3, 2"
 # 40 cores per node
 #export write_tasks=4 
 #export layout="6, 4"
+set -x
+
 # hybrid gain GSI(3DVar)/EnKF workflow
 export cores=`expr $NODES \* $corespernode`
 echo "running on $machine using $NODES nodes and $cores CORES"
@@ -107,8 +109,8 @@ export ensda="enkf_run.sh"
 export rungsi='run_gsi_4densvar.sh'
 export rungfs='run_fv3.sh' # ensemble forecast
 
-export jedirun='false'
-#export jedirun='true'
+#export jedirun='false'
+export jedirun='true'
 export jedidatadir=/scratch2/BMC/gsienkf/Wei.Huang/producttion/Data
 export jeditemplatedir=/scratch2/BMC/gsienkf/Wei.Huang/producttion/utils/templates
 export jediblddir=/scratch2/BMC/gsienkf/Wei.Huang/jedi/dev/build/intel
@@ -204,7 +206,10 @@ else
    exit 1
 fi
 export datapath="${datadir}/${exptname}"
-export logdir="${datadir}/logs/${exptname}"
+export logdir="${datadir}/${exptname}/logs"
+
+echo "datapath: ${datadir}"
+echo "logdir: ${logdir}"
 
 export NOSAT="YES" # if yes, no radiances assimilated
 export NOCONV="NO"
