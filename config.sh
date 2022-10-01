@@ -39,7 +39,8 @@ export rungfs='run_fv3.sh' # ensemble forecast
 #export jedirun='false'
 export jedirun='true'
 export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
-export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
+#export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
+export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/templates.GSI_QConly
 export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
 
 #export do_cleanup='true' # if true, create tar files, delete *mem* files.
@@ -264,8 +265,7 @@ elif [ $RES -eq 96 ]; then
    export LONB=384   
    export LATB=192  
   #export dt_atmos=600   #Original setup. It blows up at 2020010618.
-   export dt_atmos=600
-  #export dt_atmos=300
+   export dt_atmos=300
    export cdmbgwd="0.14,1.8,1.0,1.0"  # mountain blocking, ogwd, cgwd, cgwd src scaling
 elif [ $RES -eq 48 ]; then
    export JCAP=94
