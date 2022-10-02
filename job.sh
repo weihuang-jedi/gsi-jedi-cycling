@@ -1,8 +1,8 @@
 #!/bin/sh
 ##SBATCH -q urgent
-#SBATCH -t 03:30:00
+#SBATCH -t 02:30:00
 #SBATCH -A gsienkf
-#SBATCH -N 10  
+#SBATCH -N 20  
 #SBATCH --ntasks-per-node=40
 #SBATCH -p orion
 #SBATCH -J jedi_C96_lgetkf_sondesonly
@@ -14,14 +14,7 @@ export corespernode=$SLURM_CPUS_ON_NODE
 export machine='orion'
 
 # for control forecast
-if [ $NODES -eq 10 ]; then
-  # 10 nodes, 2 threads
-  export control_threads=2
-  export control_proc=400
-  export write_groups_ctl=4 # write groups for control forecast.
-  export write_tasks_ctl=4
-  export layout_ctl="4,8" # layout_x,layout_y (total # mpi tasks = $layout_x*$layout_y*6=($fg_proc/$fg_threads) - $write_tasks*$write_groups)
-elif [ $NODES -eq 20 ]; then
+if [ $NODES -eq 20 ]; then
   # 20 nodes, 2 threads
   export control_threads=2
   export control_proc=800
@@ -122,7 +115,7 @@ export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
 #export cleanup_anal='true'
 #export cleanup_controlanl='true'
 #export cleanup_observer='true' 
-export resubmit='true'
+#export resubmit='true'
 export do_cleanup='false' # if true, create tar files, delete *mem* files.
 export cleanup_fg='false'
 export cleanup_ensmean='false'
@@ -130,7 +123,7 @@ export cleanup_ensmean_enkf='false'
 export cleanup_anal='false'
 export cleanup_controlanl='false'
 export cleanup_observer='false' 
-#export resubmit='false'
+export resubmit='false'
 export replay_run_observer='false' # run observer on replay control forecast
 # python script checkdate.py used to check
 # YYYYMMDDHH analysis date string to see if
@@ -151,16 +144,17 @@ export controlanal="false" # hybrid-cov high-res control analysis as in ops
 # (hybgain will be set to false if controlanal=true)
 
 # override values from above for debugging.
-#export cleanup_ensmean='false'
-#export cleanup_ensmean_enkf='false'
-#export recenter_fcst="false"
-#export cleanup_controlanl='false'
-#export cleanup_observer='false'
-#export cleanup_anal='false'
-#export recenter_anal="false"
-#export cleanup_fg='false'
+export cleanup_ensmean='false'
+export cleanup_ensmean_enkf='false'
+export recenter_fcst="false"
+export cleanup_controlanl='false'
+export cleanup_observer='false'
+export cleanup_anal='false'
+export recenter_anal="false"
+export cleanup_fg='false'
 #export resubmit='false'
-#export do_cleanup='false'
+export resubmit='true'
+export do_cleanup='false'
 export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
 export save_hpss="false"
 
@@ -335,7 +329,9 @@ elif [ $RES -eq 96 ]; then
    export JCAP=190
    export LONB=384   
    export LATB=192  
+  #export dt_atmos=600   #Original setup. It blows up at 2020010618.
    export dt_atmos=600
+  #export dt_atmos=300
    export cdmbgwd="0.14,1.8,1.0,1.0"  # mountain blocking, ogwd, cgwd, cgwd src scaling
 elif [ $RES -eq 48 ]; then
    export JCAP=94

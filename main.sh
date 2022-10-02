@@ -304,7 +304,6 @@ else # just run observer (EnKF only)
    export charnanal2='ensmean' 
    export lobsdiag_forenkf='.true.'
    export skipcat="false"
-  #Create diag files.
    echo "$analdate run gsi observer with `printenv | grep charnanal` `date`"
    sh ${enkfscripts}/run_gsiobserver.sh > ${current_logdir}/run_gsi_observer.out 2>&1
    # once observer has completed, check log files.
@@ -317,7 +316,7 @@ else # just run observer (EnKF only)
    fi
 fi
 
-if [ $jedirun == "true" ]; then
+if [ $jedirun == "true" ] && [ $cold_start == 'false' ]; then
    echo "Run JEDI for: $analdate start at: `date`"
    sh ${enkfscripts}/run_jedi.sh
 
