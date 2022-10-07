@@ -53,8 +53,8 @@ local ensemble DA:
     lengthscale: 14
     lengthscale units: levels
   inflation:
-    rtps: 0.5
-    rtpp: 0.6
+    rtps: 0.85
+    rtpp: 0.0
     mult: 1.0
 
 # Analysis output
@@ -84,13 +84,24 @@ local ensemble DA:
 # for realistic output, use gfs filetype for output
 # here we are using latlon for ease of visualisation
 output ensemble increments:
-  filetype: auxgrid
-  gridtype: gaussian
-  filename: Data/ens/mem%{member}%/getkf.increment.
+  filetype: fms restart
+  datapath: analysis/increment/mem%{member}%
+  filename_core: fv_core.res.nc
+  filename_trcr: fv_tracer.res.nc
+  filename_sfcd: sfc_data.nc
+  filename_sfcw: fv_srf_wnd.res.nc
+  filename_cplr: coupler.res
+
+# for realistic output, use gfs filetype for output
+# here we are using latlon for ease of visualisation
+#output ensemble increments:
+#  filetype: auxgrid
+#  gridtype: gaussian
+#  filename: Data/ens/mem%{member}%/getkf.increment.
 
 output:
   filetype: auxgrid
-  gridtype: latlon
+  gridtype: auxgrid
   filename: analysis/mean/mean.
 
 output increment:

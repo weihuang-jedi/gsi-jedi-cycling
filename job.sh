@@ -1,6 +1,6 @@
 #!/bin/sh
 ##SBATCH -q urgent
-#SBATCH -t 03:30:00
+#SBATCH -t 04:30:00
 #SBATCH -A gsienkf
 #SBATCH -N 10  
 #SBATCH --ntasks-per-node=40
@@ -112,24 +112,25 @@ export rungfs='run_fv3.sh' # ensemble forecast
 #export jedirun='false'
 export jedirun='true'
 export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
-export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
+#export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
+export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/templates.GSI_QConly
 export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
 
 #export do_cleanup='true' # if true, create tar files, delete *mem* files.
-#export cleanup_fg='true'
-#export cleanup_ensmean='true'
-#export cleanup_ensmean_enkf='true'
-#export cleanup_anal='true'
-#export cleanup_controlanl='true'
-#export cleanup_observer='true' 
+export cleanup_fg='true'
+export cleanup_ensmean='true'
+export cleanup_ensmean_enkf='true'
+export cleanup_anal='true'
+export cleanup_controlanl='true'
+export cleanup_observer='true' 
 export resubmit='true'
 export do_cleanup='false' # if true, create tar files, delete *mem* files.
-export cleanup_fg='false'
-export cleanup_ensmean='false'
-export cleanup_ensmean_enkf='false'
-export cleanup_anal='false'
-export cleanup_controlanl='false'
-export cleanup_observer='false' 
+#export cleanup_fg='false'
+#export cleanup_ensmean='false'
+#export cleanup_ensmean_enkf='false'
+#export cleanup_anal='false'
+#export cleanup_controlanl='false'
+#export cleanup_observer='false' 
 #export resubmit='false'
 export replay_run_observer='false' # run observer on replay control forecast
 # python script checkdate.py used to check
@@ -160,7 +161,7 @@ export controlanal="false" # hybrid-cov high-res control analysis as in ops
 #export recenter_anal="false"
 #export cleanup_fg='false'
 #export resubmit='false'
-#export do_cleanup='false'
+export do_cleanup='false'
 export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
 export save_hpss="false"
 
@@ -337,8 +338,7 @@ elif [ $RES -eq 96 ]; then
    export LONB=384   
    export LATB=192  
   #export dt_atmos=600   #Original setup. It blows up at 2020010618.
-   export dt_atmos=600
-  #export dt_atmos=300
+   export dt_atmos=300
    export cdmbgwd="0.14,1.8,1.0,1.0"  # mountain blocking, ogwd, cgwd, cgwd src scaling
 elif [ $RES -eq 48 ]; then
    export JCAP=94

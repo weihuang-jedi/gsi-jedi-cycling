@@ -163,10 +163,45 @@ srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \
 #  exit 1
 #fi
  
-python ${enkfscripts}/pool_trans.py \
-   --jedidir=${datapath} \
-   --datestr=${analdate} \
-   --gsifile=/work2/noaa/gsienkf/weihuang/production/run/transform/fv3_increment6.nc
+#python ${enkfscripts}/pool_trans.py \
+#   --jedidir=${datapath} \
+#   --datestr=${analdate} \
+#   --gsifile=/work2/noaa/gsienkf/weihuang/production/run/transform/fv3_increment6.nc
+
+#sh ${enkfscripts}/interp_fv3cube2gaussian.sh
+interpsrcdir=/work2/noaa/gsienkf/weihuang/production/run/transform/interp_fv3cube2gaussian
+prefix=${year}${month}${day}.${hour}0000.
+
+workdir=${datapath}/${analdate}
+
+cat > input.nml << EOF
+&control_param
+ generate_weights = .false.
+ output_flnm = "interp2gaussian_grid.nc4"
+ wgt_flnm = "${interpsrcdir}/gaussian_weights.nc4"
+ indirname = "${workdir}/analysis/increment"
+ outdirname = "${workdir}/Data/ens"
+ has_prefix = .true.
+ prefix = "${prefix}"
+ use_gaussian_grid = .true.
+ gaussian_grid_file = "${interpsrcdir}/gaussian_grid.nc4"
+ nlon = 384
+ nlat = 192
+ nlev = 127
+ nilev = 128
+ npnt = 4
+ total_members = 80
+ num_types = 2
+ data_types = 'fv_core.res.tile', 'fv_tracer.res.tile',
+/
+EOF
+
+export mpitaskspernode=8
+nprocs=80
+totnodes=10
+
+srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \
+  --exclusive --cpu-bind=cores --verbose ${interpsrcdir}/fv3interp.exe
 
 jedi_done=no
 

@@ -321,13 +321,13 @@ if [ $jedirun == "true" ] && [ $cold_start == 'false' ]; then
    echo "Run JEDI for: $analdate start at: `date`"
    sh ${enkfscripts}/run_jedi.sh
 
-  #jedi_done=`cat ${current_logdir}/run_jedi.log`
-  #if [ $jedi_done == 'yes' ]; then
-  #  echo "$analdate jedi completed successfully `date`"
-  #else
-  #  echo "$analdate jedi did not complete successfully, exiting `date`"
-  #  exit 1
-  #fi
+   jedi_done=`cat ${current_logdir}/run_jedi.log`
+   if [ $jedi_done == 'yes' ]; then
+     echo "$analdate jedi completed successfully `date`"
+   else
+     echo "$analdate jedi did not complete successfully, exiting `date`"
+     exit 1
+   fi
 #else
 #   echo "Did not run JEDI for: $analdate "
 fi

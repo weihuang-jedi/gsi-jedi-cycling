@@ -53,9 +53,11 @@ local ensemble DA:
     lengthscale: 14
     lengthscale units: levels
   inflation:
-    rtps: 0.5
-    rtpp: 0.6
+    rtps: 0.85
+    rtpp: 0.0
     mult: 1.0
+#orirtps: 0.5
+#orirtpp: 0.6
 
 # Analysis output
 # ---------------
