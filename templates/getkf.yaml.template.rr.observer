@@ -1,0 +1,105 @@
+# Background/anaysis geometry
+# ---------------------------
+geometry:
+  fms initialization:
+    namelist filename: Data/fv3files/fmsmpp.nml
+    field table filename: Data/fv3files/field_table
+  akbk: Data/fv3files/akbk127.nc4
+  layout: [LAYOUT]
+  npx: 97
+  npy: 97
+  npz: 127
+  field metadata override: Data/fieldmetadata/gfs-restart.yaml
+
+window begin: &date 'DATETIME'
+window length: PT6H
+
+background:
+  date: *date
+  members from template:
+    pattern: '%mem%'
+    nmembers: NUMBEROFMEMBERS
+    zero padding: 3
+    template:
+      datetime: DATETIME
+      datapath: Data/ens/mem%mem%
+      filename_core: fv_core.res.nc
+      filename_trcr: fv_tracer.res.nc
+      filename_sfcd: sfc_data.nc
+      filename_sfcw: fv_srf_wnd.res.nc
+      filename_cplr: coupler.res
+      filetype: fms restart
+      state variables: [ua, va, t, DZ, delp, phis, sphum, o3mr]
+     #state variables: [u,v,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+     #                  slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
+     #                  u_srf,v_srf,f10m]
+
+driver:
+  read HX from disk: false
+  do posterior observer: false
+ #do test prints: true
+  do test prints: false
+  save posterior mean: true
+  save posterior ensemble: false
+  save prior mean: false
+  save posterior mean increment: true
+  save posterior ensemble increments: true
+  update obs config with geometry info: false
+  run as observer only: true
+
+local ensemble DA:
+  solver: GETKF
+  vertical localization:
+    fraction of retained variance: .95
+    lengthscale: 14
+    lengthscale units: levels
+  inflation:
+    rtps: 0.5
+    rtpp: 0.6
+    mult: 1.0
+
+# Analysis output
+# ---------------
+#output:
+#  filetype: fms restart
+#  datapath: analysis/mean
+#  filename_core: fv_core.res.nc
+#  filename_trcr: fv_tracer.res.nc
+#  filename_sfcd: sfc_data.nc
+#  filename_sfcw: fv_srf_wnd.res.nc
+#  filename_cplr: coupler.res
+#  first: PT0H
+#  frequency: PT1H
+#
+#output increment:
+#  filetype: fms restart
+#  datapath: analysis/increment
+#  filename_core: fv_core.res.nc
+#  filename_trcr: fv_tracer.res.nc
+#  filename_sfcd: sfc_data.nc
+#  filename_sfcw: fv_srf_wnd.res.nc
+#  filename_cplr: coupler.res
+#  first: PT0H
+#  frequency: PT1H
+
+# for realistic output, use gfs filetype for output
+# here we are using latlon for ease of visualisation
+output ensemble increments:
+  filetype: auxgrid
+  gridtype: gaussian
+  filename: analysis/mem%{member}%/getkf.increment.
+
+output:
+  filetype: auxgrid
+  gridtype: latlon
+  filename: analysis/mean/mean.
+
+output increment:
+  filetype: auxgrid
+  gridtype: gaussian
+  filename: analysis/increment/xainc.
+
+# Observing system
+# ----------------
+observations:
+  observers:

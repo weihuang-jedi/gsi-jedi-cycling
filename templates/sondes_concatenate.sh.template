@@ -1,0 +1,15 @@
+#!/bin/bash
+
+ poolsize=5
+ debug=1
+ datestring='DATESTRING'
+ workdir='OBSDIR'
+ obslist='["sondes_q_obs","sondes_tsen_obs","sondes_uv_obs","sondes_tv_obs"]'
+
+ time python TOPDIR/concatenate.py \
+   --debug=${debug} \
+   --datestring=${datestring} \
+   --workdir=${workdir} \
+   --obslist=${obslist} \
+   --poolsize=${poolsize}
+
