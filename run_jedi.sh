@@ -13,7 +13,8 @@ if [ $VERBOSE = "YES" ]; then
 fi
 
 ulimit -s unlimited
-
+source ~/.bashrc
+source ~/intelenv
 source ${datapath}/analdate.sh
 
 # yr,mon,day,hr at middle of assim window (analysis time)
@@ -50,6 +51,7 @@ minute=0
 second=0
 
 ensdir=${run_dir}/Data/ens
+incdir=${run_dir}/analysis/increment
 mkdir -p ${ensdir}
 cd ${ensdir}
 
@@ -83,6 +85,7 @@ do
 
    ln -sf ${run_dir}/${member_str}/INPUT ${member_str}
    cp ${ensdir}/coupler.res ${member_str}/.
+   mkdir -p ${incdir}/${member_str}
 
    n=$(( $n + 1 ))
 done
@@ -111,6 +114,7 @@ NUMMEM=80
 MYLAYOUT="5,8"
 backgrounddatetime=${year}-${month}-${day}T${hour}:00:00Z
 windowdatetime=`python ${enkfscripts}/setjedistartdate.py --year=${year} --month=${month} --day=${day} --hour=${hour} --intv=3`
+echo "windowdatetime=$windowdatetime"
 casename=sondes
 READFROMDISK=false
 UPDATEWITHGEOMETRY=false
@@ -120,6 +124,7 @@ MAXPOOLSIZE=1
 DISTRIBUTION=' name: Halo'
 HALOSIZE=' halo size: 1250e3'
 yyyymmddhh=${year}${month}${day}${hour}
+echo "yyyymmddhh=$yyyymmddhh"
 
 sed -e "s?LAYOUT?${MYLAYOUT}?g" \
     -e "s?NUMBEROFMEMBERS?${NUMMEM}?g" \
@@ -177,10 +182,10 @@ workdir=${datapath}/${analdate}
 cat > input.nml << EOF
 &control_param
  generate_weights = .false.
- output_flnm = "interp2gaussian_grid.nc4"
+ output_flnm = "fv3_increment6.nc"
  wgt_flnm = "${interpsrcdir}/gaussian_weights.nc4"
  indirname = "${workdir}/analysis/increment"
- outdirname = "${workdir}/Data/ens"
+ outdirname = "${workdir}"
  has_prefix = .true.
  prefix = "${prefix}"
  use_gaussian_grid = .true.

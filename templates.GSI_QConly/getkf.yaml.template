@@ -101,7 +101,7 @@ output ensemble increments:
 
 output:
   filetype: auxgrid
-  gridtype: auxgrid
+  gridtype: gaussian
   filename: analysis/mean/mean.
 
 output increment:
