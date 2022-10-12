@@ -13,8 +13,6 @@ if [ $VERBOSE = "YES" ]; then
 fi
 
 ulimit -s unlimited
-source ~/.bashrc
-source ~/intelenv
 source ${datapath}/analdate.sh
 
 # yr,mon,day,hr at middle of assim window (analysis time)
@@ -23,9 +21,10 @@ export month=`echo $analdate |cut -c 5-6`
 export day=`echo $analdate |cut -c 7-8`
 export hour=`echo $analdate |cut -c 9-10`
 
-source /work2/noaa/gsienkf/weihuang/production/util/intelenv
+#source /work2/noaa/gsienkf/weihuang/production/util/intelenv
+#module rm python/3.9.2
 
-module rm python/3.9.2
+source ~/intelenv.skylab
 
 #ioda-bundle build dir:
 export blddir=/work2/noaa/gsienkf/weihuang/production/build/ioda-bundle
