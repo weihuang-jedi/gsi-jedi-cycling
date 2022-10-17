@@ -1,0 +1,33 @@
+ module purge
+ module use /work/noaa/da/role-da/spack-stack/modulefiles
+ module load miniconda/3.9.7
+ module load ecflow/5.8.4
+ module use /work/noaa/da/role-da/spack-stack/spack-stack-v1/envs/skylab-2.0.0-intel-2022.0.2/install/modulefiles/Core
+ module load stack-intel/2022.0.2
+ module load stack-intel-oneapi-mpi/2021.5.1
+ module load stack-python/3.9.7
+ module load jedi-fv3-env/1.0.0 jedi-ewok-env/1.0.0 soca-env/1.0.0 sp/2.3.3
+
+ export FC=ifort
+ export CC=icc
+ export CXX=icpc
+
+ export SERIAL_FC=FC
+ export SERIAL_CC=CC
+ export SERIAL_CXX=CXX
+
+ export MPI_FC=mpiifort
+ export MPI_CC=mpiicc
+ export MPI_CXX=mpiicpc
+
+#export FFLAGS="-g"
+#export CFLAGS="-g"
+#export CXXFLAGS="-g"
+#export LDFLAGS="-Wl,-z,now"
+
+#export blddir=/work/noaa/gsienkf/weihuang/jedi/src/my.compile
+#export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
+
+#export blddir=/work/noaa/gsienkf/weihuang/jedi/src/bld.soca
+#export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
+

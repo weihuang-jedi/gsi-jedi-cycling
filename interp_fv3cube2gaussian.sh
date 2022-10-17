@@ -22,9 +22,8 @@ export month=`echo $analdate |cut -c 5-6`
 export day=`echo $analdate |cut -c 7-8`
 export hour=`echo $analdate |cut -c 9-10`
 
-source /work2/noaa/gsienkf/weihuang/production/util/intelenv
-
-module rm python/3.9.2
+#source /work2/noaa/gsienkf/weihuang/production/util/intelenv
+source ~/intelenv
 
 interpsrcdir=/work2/noaa/gsienkf/weihuang/production/run/transform/interp_fv3cube2gaussian
 prefix=${year}${month}${day}.${hour}0000.
