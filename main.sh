@@ -328,8 +328,8 @@ if [ $jedirun == "true" ] && [ $cold_start == 'false' ]; then
      echo "$analdate jedi did not complete successfully, exiting `date`"
      exit 1
    fi
-#else
-#   echo "Did not run JEDI for: $analdate "
+else
+   echo "Did not run JEDI for: $analdate "
 fi
 
 # loop over members run observer sequentially (for testing)

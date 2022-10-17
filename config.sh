@@ -430,7 +430,7 @@ elif [ "$machine" == 'orion' ]; then
    export FIXDIR=/work/noaa/nems/emc.nemspara/RT/NEMSfv3gfs/input-data-20220414
    #export FIXDIR_gcyc=$FIXDIR
    export FIXDIR_gcyc=/work/noaa/global/glopara/fix_NEW # for GFSv16
-   export python=`which python`
+  #export python=`which python`
    export fv3gfspath=/work/noaa/global/glopara
    export FIXFV3=$fv3gfspath/fix_nco_gfsv16/fix_fv3_gmted2010
    export FIXGLOBAL=$fv3gfspath/fix_nco_gfsv16/fix_am

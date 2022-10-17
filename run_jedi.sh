@@ -1,9 +1,8 @@
 #!/bin/sh
 # model was compiled with these 
-echo "starting at `date`"
+echo "run Jedi starting at `date`"
 source $MODULESHOME/init/sh
-
-module list
+source ~/intelenv
 
 export VERBOSE=${VERBOSE:-"NO"}
 hydrostatic=${hydrostatic:=".false."}
@@ -12,10 +11,8 @@ if [ $VERBOSE = "YES" ]; then
  set -x
 fi
 
-ulimit -s unlimited
-source ~/.bashrc
-source ~/intelenv
 source ${datapath}/analdate.sh
+ulimit -s unlimited
 
 # yr,mon,day,hr at middle of assim window (analysis time)
 export year=`echo $analdate |cut -c 1-4`
@@ -23,37 +20,49 @@ export month=`echo $analdate |cut -c 5-6`
 export day=`echo $analdate |cut -c 7-8`
 export hour=`echo $analdate |cut -c 9-10`
 
-source /work2/noaa/gsienkf/weihuang/production/util/intelenv
+export PROJ_LIB=/work2/noaa/gsienkf/weihuang/anaconda3/share/proj
+export PYTHONPATH=/work/noaa/gsienkf/weihuang/jedi/vis_tools/xESMF/build/lib
+export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib:$PYTHONPATH
+export LD_LIBRARY_PATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib:${LD_LIBRARY_PATH}
+export PATH=/work2/noaa/gsienkf/weihuang/anaconda3/bin:${PATH}
 
-module rm python/3.9.2
+#export iodablddir=/work2/noaa/gsienkf/weihuang/production/build/ioda-bundle
+export iodablddir=/work2/noaa/gsienkf/weihuang/jedi/build/ioda-bundle
+export LD_LIBRARY_PATH=${iodablddir}/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=${iodablddir}/lib/python3.9/pyioda:$PYTHONPATH
 
-#ioda-bundle build dir:
-export blddir=/work2/noaa/gsienkf/weihuang/production/build/ioda-bundle
-export PYTHONPATH=${blddir}/lib/python3.9/pyioda:$PYTHONPATH
-
-#output dir.
-output_dir=${datapath}/${analdate}/ioda_v2_data
-mkdir -p ${output_dir}
+echo "PYTHONPATH: $PYTHONPATH"
 
 #input file fir.
 run_dir=${datapath}/${analdate}
 
-temp_dir=${run_dir}/diag
-mkdir -p ${temp_dir}
-rm -rf ${temp_dir}/*
-cd ${temp_dir}
-cp ${run_dir}/diag_conv_* .
- 
-#Convert GSI diag 2 ioda2 format
-python ${blddir}/bin/proc_gsi_ncdiag.py -o ${output_dir} ${temp_dir}
+echo "run Jedi starting at `date`" > ${run_dir}/logs/run_jedi.out
+module list >> ${run_dir}/logs/run_jedi.out
+
+cd ${run_dir}
+rm -rf ioda_v2_data diag
+mkdir ioda_v2_data diag
+cp diag_conv_* diag/.
+module list
+which python
+echo "in run_dir: $${run_dir}" >> ${run_dir}/logs/run_jedi.out
+echo "ls diag" >> ${run_dir}/logs/run_jedi.out
+echo "`ls diag`" >> ${run_dir}/logs/run_jedi.out
+
+python ${iodablddir}/bin/proc_gsi_ncdiag.py \
+       -o ioda_v2_data diag
+
+echo "ls ioda_v2_data" >> ${run_dir}/logs/run_jedi.out
+echo "`ls ioda_v2_data`" >> ${run_dir}/logs/run_jedi.out
 
 minute=0
 second=0
 
-ensdir=${run_dir}/Data/ens
-incdir=${run_dir}/analysis/increment
-mkdir -p ${ensdir}
-cd ${ensdir}
+enddatadir=${run_dir}/Data
+mkdir -p ${enddatadir}
+cd ${enddatadir}
+
+echo "cd ${enddatadir}" >> ${run_dir}/logs/run_jedi.out
 
  sed -e "s?SYEAR?${year}?g" \
      -e "s?SMONTH?${month}?g" \
@@ -68,29 +77,6 @@ cd ${ensdir}
      -e "s?EMINUTE?${minute}?g" \
      -e "s?ESECOND?${second}?g" \
      ${jeditemplatedir}/coupler.res.template > coupler.res
-
-number_members=80
-n=1
-while [ $n -le $number_members ]
-do
-   if [ $n -lt 10 ]
-   then
-      member_str=mem00${n}
-   elif [ $n -lt 100 ]
-   then
-      member_str=mem0${n}
-   else
-      member_str=mem${n}
-   fi
-
-   ln -sf ${run_dir}/${member_str}/INPUT ${member_str}
-   cp ${ensdir}/coupler.res ${member_str}/.
-   mkdir -p ${incdir}/${member_str}
-
-   n=$(( $n + 1 ))
-done
-
-cd ..
 
 for dir in crtm \
    fieldmetadata \
@@ -107,7 +93,30 @@ done
 
 cd ${run_dir}
 
+rm -rf analysis hofx obsout stdoutNerr
 mkdir -p analysis/mean analysis/increment hofx obsout
+
+number_members=80
+n=1
+while [ $n -le $number_members ]
+do
+   if [ $n -lt 10 ]
+   then
+      member_str=mem00${n}
+   elif [ $n -lt 100 ]
+   then
+      member_str=mem0${n}
+   else
+      member_str=mem${n}
+   fi
+
+   cp ${enddatadir}/coupler.res ${member_str}/INPUT/.
+   mkdir -p analysis/increment/${member_str}
+
+   n=$(( $n + 1 ))
+done
+
+echo "cd ${run_dir}" >> ${run_dir}/logs/run_jedi.out
 
 nodes=6
 NUMMEM=80
@@ -142,7 +151,8 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
     -e "s?MAXPOOLSIZE?${MAXPOOLSIZE}?" \
     ${jeditemplatedir}/${casename}.obs.yaml.template >> getkf.yaml
 
-#export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
+source ~/intelenv
+export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
 export LD_LIBRARY_PATH=${jediblddir}/lib:$LD_LIBRARY_PATH
 executable=$jediblddir/bin/fv3jedi_letkf.x
 
@@ -160,8 +170,15 @@ nprocs=240
 count=1
 totnodes=6
 
-srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \
-  --exclusive --cpu-bind=cores --verbose $executable getkf.yaml
+echo "srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \\" >> ${run_dir}/logs/run_jedi.out
+echo "  --exclusive --cpu-bind=cores --verbose $executable getkf.yaml" >> ${run_dir}/logs/run_jedi.out
+echo "srun: `which srun`" >> ${run_dir}/logs/run_jedi.out
+
+srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode \
+	$executable getkf.yaml
+
+#srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \
+#  --exclusive --cpu-bind=cores --verbose $executable getkf.yaml
 
 #if [ $? -ne 0 -o ! -s ${increment_file} ]; then
 #  echo "problem creating ${increment_file}, stopping .."
@@ -178,6 +195,8 @@ interpsrcdir=/work2/noaa/gsienkf/weihuang/production/run/transform/interp_fv3cub
 prefix=${year}${month}${day}.${hour}0000.
 
 workdir=${datapath}/${analdate}
+
+echo "workdir: $workdir" >> ${run_dir}/logs/run_jedi.out
 
 cat > input.nml << EOF
 &control_param
@@ -204,6 +223,9 @@ EOF
 export mpitaskspernode=8
 nprocs=80
 totnodes=10
+
+echo "srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \\" >> ${run_dir}/logs/run_jedi.out
+echo "  --exclusive --cpu-bind=cores --verbose ${interpsrcdir}/fv3interp.exe" >> ${run_dir}/logs/run_jedi.out
 
 srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \
   --exclusive --cpu-bind=cores --verbose ${interpsrcdir}/fv3interp.exe
@@ -239,4 +261,6 @@ then
 fi
 
 echo "$jedi_done" > ${run_dir}/logs/run_jedi.log
+echo "jedi_done = $jedi_done" >> ${run_dir}/logs/run_jedi.out
+echo "run Jedi Ending at `date`" >> ${run_dir}/logs/run_jedi.out
 
