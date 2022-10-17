@@ -1,12 +1,18 @@
+ export JEDI_OPT=/work/noaa/da/jedipara/opt/modules
+ module use $JEDI_OPT/modulefiles/core
+
  module purge
- module use /work/noaa/da/role-da/spack-stack/modulefiles
- module load miniconda/3.9.7
- module load ecflow/5.8.4
- module use /work/noaa/da/role-da/spack-stack/spack-stack-v1/envs/skylab-2.0.0-intel-2022.0.2/install/modulefiles/Core
- module load stack-intel/2022.0.2
- module load stack-intel-oneapi-mpi/2021.5.1
- module load stack-python/3.9.7
- module load jedi-fv3-env/1.0.0 jedi-ewok-env/1.0.0 soca-env/1.0.0 sp/2.3.3
+ module load jedi/intel-impi
+ module load json/3.9.1
+ module load json-schema-validator/2.1.0
+ module load git-lfs
+
+#module swap atlas atlas/ecmwf-0.29.0
+#module swap eckit eckit/ecmwf-1.18.2
+#module swap fckit fckit/ecmwf-0.9.5
+
+ module rm python
+ module load slurm
 
  export FC=ifort
  export CC=icc
@@ -26,7 +32,9 @@
 #export LDFLAGS="-Wl,-z,now"
 
 #export blddir=/work/noaa/gsienkf/weihuang/jedi/src/my.compile
-#export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
+#export blddir=/work2/noaa/gsienkf/weihuang/jedi/per_core_timing/build
+ export blddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
+ export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
 
 #export blddir=/work/noaa/gsienkf/weihuang/jedi/src/bld.soca
 #export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
