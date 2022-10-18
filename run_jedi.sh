@@ -2,7 +2,6 @@
 # model was compiled with these 
 echo "run Jedi starting at `date`"
 source $MODULESHOME/init/sh
-
 source ~/intelenv
 
 export VERBOSE=${VERBOSE:-"NO"}
@@ -59,12 +58,11 @@ echo "`ls ioda_v2_data`" >> ${run_dir}/logs/run_jedi.out
 minute=0
 second=0
 
-ensdir=${run_dir}/Data/ens
-incdir=${run_dir}/analysis/increment
-mkdir -p ${ensdir}
-cd ${ensdir}
+ensdatadir=${run_dir}/Data
+mkdir -p ${ensdatadir}
+cd ${ensdatadir}
 
-echo "cd ${ensdir}" >> ${run_dir}/logs/run_jedi.out
+echo "cd ${ensdatadir}" >> ${run_dir}/logs/run_jedi.out
 
  sed -e "s?SYEAR?${year}?g" \
      -e "s?SMONTH?${month}?g" \
@@ -79,29 +77,6 @@ echo "cd ${ensdir}" >> ${run_dir}/logs/run_jedi.out
      -e "s?EMINUTE?${minute}?g" \
      -e "s?ESECOND?${second}?g" \
      ${jeditemplatedir}/coupler.res.template > coupler.res
-
-number_members=80
-n=1
-while [ $n -le $number_members ]
-do
-   if [ $n -lt 10 ]
-   then
-      member_str=mem00${n}
-   elif [ $n -lt 100 ]
-   then
-      member_str=mem0${n}
-   else
-      member_str=mem${n}
-   fi
-
-   ln -sf ${run_dir}/${member_str}/INPUT ${member_str}
-   cp ${ensdir}/coupler.res ${member_str}/.
-   mkdir -p ${incdir}/${member_str}
-
-   n=$(( $n + 1 ))
-done
-
-cd ..
 
 for dir in crtm \
    fieldmetadata \
@@ -118,7 +93,28 @@ done
 
 cd ${run_dir}
 
+rm -rf analysis hofx obsout stdoutNerr
 mkdir -p analysis/mean analysis/increment hofx obsout
+
+number_members=80
+n=1
+while [ $n -le $number_members ]
+do
+   if [ $n -lt 10 ]
+   then
+      member_str=mem00${n}
+   elif [ $n -lt 100 ]
+   then
+      member_str=mem0${n}
+   else
+      member_str=mem${n}
+   fi
+
+   cp ${ensdatadir}/coupler.res ${member_str}/INPUT/.
+   mkdir -p analysis/increment/${member_str}
+
+   n=$(( $n + 1 ))
+done
 
 echo "cd ${run_dir}" >> ${run_dir}/logs/run_jedi.out
 
@@ -155,6 +151,7 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
     -e "s?MAXPOOLSIZE?${MAXPOOLSIZE}?" \
     ${jeditemplatedir}/${casename}.obs.yaml.template >> getkf.yaml
 
+source ~/intelenv
 export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
 export LD_LIBRARY_PATH=${jediblddir}/lib:$LD_LIBRARY_PATH
 executable=$jediblddir/bin/fv3jedi_letkf.x
@@ -177,8 +174,11 @@ echo "srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode 
 echo "  --exclusive --cpu-bind=cores --verbose $executable getkf.yaml" >> ${run_dir}/logs/run_jedi.out
 echo "srun: `which srun`" >> ${run_dir}/logs/run_jedi.out
 
-srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \
-  --exclusive --cpu-bind=cores --verbose $executable getkf.yaml
+srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode \
+	$executable getkf.yaml
+
+#srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \
+#  --exclusive --cpu-bind=cores --verbose $executable getkf.yaml
 
 #if [ $? -ne 0 -o ! -s ${increment_file} ]; then
 #  echo "problem creating ${increment_file}, stopping .."

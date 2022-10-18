@@ -22,7 +22,7 @@ background:
     zero padding: 3
     template:
       datetime: BACKGROUNDDATETIME
-      datapath: Data/ens/mem%mem%
+      datapath: mem%mem%/INPUT
       filename_core: fv_core.res.nc
       filename_trcr: fv_tracer.res.nc
       filename_sfcd: sfc_data.nc
