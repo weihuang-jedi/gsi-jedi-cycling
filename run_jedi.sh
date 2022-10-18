@@ -58,11 +58,11 @@ echo "`ls ioda_v2_data`" >> ${run_dir}/logs/run_jedi.out
 minute=0
 second=0
 
-enddatadir=${run_dir}/Data
-mkdir -p ${enddatadir}
-cd ${enddatadir}
+ensdatadir=${run_dir}/Data
+mkdir -p ${ensdatadir}
+cd ${ensdatadir}
 
-echo "cd ${enddatadir}" >> ${run_dir}/logs/run_jedi.out
+echo "cd ${ensdatadir}" >> ${run_dir}/logs/run_jedi.out
 
  sed -e "s?SYEAR?${year}?g" \
      -e "s?SMONTH?${month}?g" \
@@ -110,7 +110,7 @@ do
       member_str=mem${n}
    fi
 
-   cp ${enddatadir}/coupler.res ${member_str}/INPUT/.
+   cp ${ensdatadir}/coupler.res ${member_str}/INPUT/.
    mkdir -p analysis/increment/${member_str}
 
    n=$(( $n + 1 ))
@@ -229,6 +229,9 @@ echo "  --exclusive --cpu-bind=cores --verbose ${interpsrcdir}/fv3interp.exe" >>
 
 srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \
   --exclusive --cpu-bind=cores --verbose ${interpsrcdir}/fv3interp.exe
+
+#srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode \
+#        ${interpsrcdir}/fv3interp.exe
 
 jedi_done=no
 
