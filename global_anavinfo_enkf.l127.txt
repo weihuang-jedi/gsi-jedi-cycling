@@ -51,7 +51,7 @@ state_vector::
 !var     level  itracer source     funcof
  u       127      0     met_guess    u
  v       127      0     met_guess    v
- dprs    127      0     met_guess    prse
+!dprse   127      0     met_guess    prse
  tv      127      0     met_guess    tv
  tsen    127      0     met_guess    tv,q
  q       127      1     met_guess    q
@@ -67,7 +67,7 @@ control_vector_enkf::
 !var     level  itracer as/tsfc_sdv  an_amp0   source  funcof
  u       127      0       1.00        -1.0     state    u,v
  v       127      0       1.00        -1.0     state    u,v
- dprs    127      0       1.00        -1.0     state    prse
+!dprse   127      0       1.00        -1.0     state    prse
 !ps        1      0       1.20        -1.0     state    prse
 !pst       1      0       1.20        -1.0     state    prse,u,v
  tv      127      0       1.50        -1.0     state    tv
@@ -84,7 +84,7 @@ control_vector::
  sf      127      0       1.00        -1.0     state    u,v
  vp      127      0       1.00        -1.0     state    u,v
  ps        1      0       1.20        -1.0     state    prse
- dprs    127      0       1.00        -1.0     state    prse
+!dprse   127      0       1.00        -1.0     state    prse
  t       127      0       1.50        -1.0     state    tv
  q       127      1       1.50        -1.0     state    q
  oz      127      1       2.00        -1.0     state    oz

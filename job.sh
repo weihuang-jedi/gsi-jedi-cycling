@@ -1,6 +1,6 @@
 #!/bin/sh
 ##SBATCH -q urgent
-#SBATCH -t 00:30:00
+#SBATCH -t 01:45:00
 #SBATCH -A gsienkf
 #SBATCH -N 20  
 #SBATCH --ntasks-per-node=40
@@ -495,7 +495,8 @@ elif [ "$machine" == 'orion' ]; then
    export fv3gfspath=/work/noaa/global/glopara
    export FIXFV3=$fv3gfspath/fix_nco_gfsv16/fix_fv3_gmted2010
    export FIXGLOBAL=$fv3gfspath/fix_nco_gfsv16/fix_am
-   export gsipath=/work/noaa/gsienkf/whitaker/GSI
+  #export gsipath=/work/noaa/gsienkf/whitaker/GSI
+   export gsipath=/work2/noaa/da/weihuang/cycling/scripts/GSI
    export fixgsi=${gsipath}/fix
    #export fixcrtm=${basedir}/fix/crtm/v2.2.6/fix
    export fixcrtm=$fv3gfspath/crtm/crtm_v2.3.0
