@@ -26,7 +26,7 @@ export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib:$PYTHONPATH
 export LD_LIBRARY_PATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib:${LD_LIBRARY_PATH}
 export PATH=/work2/noaa/gsienkf/weihuang/anaconda3/bin:${PATH}
 
-#export iodablddir=/work2/noaa/gsienkf/weihuang/production/build/ioda-bundle
+#export iodablddir=/work2/noaa/gsienkf/weihuang/production2/build/ioda-bundle
 export iodablddir=/work2/noaa/gsienkf/weihuang/jedi/build/ioda-bundle
 export LD_LIBRARY_PATH=${iodablddir}/lib:$LD_LIBRARY_PATH
 export PYTHONPATH=${iodablddir}/lib/python3.9/pyioda:$PYTHONPATH
@@ -152,7 +152,7 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
     ${jeditemplatedir}/${casename}.obs.yaml.template >> getkf.yaml
 
 source ~/intelenv
-export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
+export jediblddir=/work2/noaa/gsienkf/weihuang/production2/build/fv3-bundle
 export LD_LIBRARY_PATH=${jediblddir}/lib:$LD_LIBRARY_PATH
 executable=$jediblddir/bin/fv3jedi_letkf.x
 
@@ -185,12 +185,6 @@ srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode \
 #  exit 1
 #fi
  
-#python ${enkfscripts}/pool_trans.py \
-#   --jedidir=${datapath} \
-#   --datestr=${analdate} \
-#   --gsifile=/work2/noaa/gsienkf/weihuang/production/run/transform/fv3_increment6.nc
-
-#sh ${enkfscripts}/interp_fv3cube2gaussian.sh
 interpsrcdir=/work2/noaa/gsienkf/weihuang/production/run/transform/interp_fv3cube2gaussian
 prefix=${year}${month}${day}.${hour}0000.
 

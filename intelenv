@@ -31,11 +31,6 @@
 #export CXXFLAGS="-g"
 #export LDFLAGS="-Wl,-z,now"
 
-#export blddir=/work/noaa/gsienkf/weihuang/jedi/src/my.compile
-#export blddir=/work2/noaa/gsienkf/weihuang/jedi/per_core_timing/build
- export blddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
+ export blddir=/work2/noaa/gsienkf/weihuang/production2/build/fv3-bundle
  export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
-
-#export blddir=/work/noaa/gsienkf/weihuang/jedi/src/bld.soca
-#export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
 

@@ -39,9 +39,8 @@ export rungfs='run_fv3.sh' # ensemble forecast
 #export jedirun='false'
 export jedirun='true'
 export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
-#export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
 export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/templates.GSI_QConly
-export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
+export jediblddir=/work2/noaa/gsienkf/weihuang/production2/build/fv3-bundle
 
 #export do_cleanup='true' # if true, create tar files, delete *mem* files.
 export cleanup_fg='true'
