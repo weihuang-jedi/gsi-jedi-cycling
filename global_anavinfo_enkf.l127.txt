@@ -1,8 +1,8 @@
 correlated_observations::
 ! isis          method   kreq   kmult   type    cov_file
-iasi_metop-a      2       0.0     1.0    sea     Rcov_iasiasea
+iasi_metop-c      2       0.0     1.0    sea     Rcov_iasicsea
 iasi_metop-b      2       0.0     1.0    sea     Rcov_iasibsea
-iasi_metop-a      2       0.0     1.0    land    Rcov_iasialand
+iasi_metop-c      2       0.0     1.0    land    Rcov_iasicland
 iasi_metop-b      2       0.0     1.0    land    Rcov_iasibland
 cris-fsr_n20      2       0.0     1.0    sea     Rcov_crisn20
 cris-fsr_npp      2       0.0     1.0    sea     Rcov_crisnpp
@@ -51,7 +51,6 @@ state_vector::
 !var     level  itracer source     funcof
  u       127      0     met_guess    u
  v       127      0     met_guess    v
-!dprse   127      0     met_guess    prse
  tv      127      0     met_guess    tv
  tsen    127      0     met_guess    tv,q
  q       127      1     met_guess    q
@@ -63,11 +62,23 @@ state_vector::
  sst       1      0     met_guess    sst
 ::
 
+
+state_vector_efsoi::
+!var     level  itracer source     funcof
+ u       127      0     met_guess    u
+ v       127      0     met_guess    v
+ tv      127      0     met_guess    tv
+ q       127      1     met_guess    q
+ ps        1      0     met_guess    prse
+::
+
+
+
 control_vector_enkf::
 !var     level  itracer as/tsfc_sdv  an_amp0   source  funcof
  u       127      0       1.00        -1.0     state    u,v
  v       127      0       1.00        -1.0     state    u,v
-!dprse   127      0       1.00        -1.0     state    prse
+ dprs    127      0       1.00        -1.0     state    prse
 !ps        1      0       1.20        -1.0     state    prse
 !pst       1      0       1.20        -1.0     state    prse,u,v
  tv      127      0       1.50        -1.0     state    tv
@@ -84,7 +95,6 @@ control_vector::
  sf      127      0       1.00        -1.0     state    u,v
  vp      127      0       1.00        -1.0     state    u,v
  ps        1      0       1.20        -1.0     state    prse
-!dprse   127      0       1.00        -1.0     state    prse
  t       127      0       1.50        -1.0     state    tv
  q       127      1       1.50        -1.0     state    q
  oz      127      1       2.00        -1.0     state    oz
@@ -100,8 +110,8 @@ control_vector::
 ! trace gas profiles, just delete the following seven lines.
 chem_guess::
 !var     level  itracer crtm_use       type    orig_name
-!ch4     127      1       2             n/a    ch4
+!ch4      64      1       2             n/a    ch4
  co2     127      1       0             n/a    co2
-!co      127      1       2             n/a    co
-!n2o     127      1       2             n/a    n2o
+!co       64      1       2             n/a    co
+!n2o      64      1       2             n/a    n2o
 ::

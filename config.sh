@@ -469,8 +469,10 @@ fi
 #export ANAVINFO=${fixgsi}/global_anavinfo_allhydro.l${LEVS}.txt
 #export ANAVINFO=${fixgsi}/global_anavinfo.l${LEVS}.txt
 #export ANAVINFO=${enkfscripts}/global_anavinfo.l${LEVS}.txt.dpres
-export ANAVINFO=${enkfscripts}/global_anavinfo_enkf.l127.txt
-export ANAVINFO_ENKF=${ANAVINFO}
+#export ANAVINFO=${enkfscripts}/global_anavinfo_enkf.l127.txt
+#export ANAVINFO_ENKF=${ANAVINFO}
+export ANAVINFO=${fixgsi}/global_anavinfo.l${LEVS}.txt
+export ANAVINFO_ENKF=${enkfscripts}/global_anavinfo_enkf.l127.txt
 export HYBENSINFO=${fixgsi}/global_hybens_info.l${LEVS}.txt # only used if readin_beta or readin_localization=T
 #export HYBENSINFO=${enkfscripts}/global_hybens_info.l${LEVS}.txt # only used if readin_beta or readin_localization=T
 # comment out next line to disable smoothing of ensemble perturbations
