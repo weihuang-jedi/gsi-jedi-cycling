@@ -1,0 +1,97 @@
+#!/bin/bash
+#SBATCH --ntasks-per-node=TASKSPERNODE
+#SBATCH -N TOTALNODES
+#SBATCH -n TOTALCPUS
+#SBATCH -t 02:25:00
+#SBATCH -A gsienkf
+##SBATCH --partition=orion
+#SBATCH --partition=bigmem
+#SBATCH --job-name=getkf
+#SBATCH --output=log.getkf
+
+ source /work2/noaa/gsienkf/weihuang/production/util/intelenv
+
+ ulimit -S unlimited
+ ulimit -c unlimited
+
+ export blddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
+ export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
+ executable=$blddir/bin/fv3jedi_letkf.x
+
+#--------------------------------------------------------------------------------------------
+ export OOPS_DEBUG=-11
+ export OOPS_TRACK=-11
+#export OOPS_TRACE=1
+
+#--------------------------------------------------------------------------------------------
+ cd WORKDIR
+
+ ln -sf /work2/noaa/gsienkf/weihuang/production/run/Data .
+ ln -sf /work2/noaa/gsienkf/weihuang/production/run/ioda_v2_data .
+
+#--------------------------------------------------------------------------------------------
+ if [ -f log.getkf ]
+ then
+   ns=1
+   while [ -f log.getkf.${ns} ]
+   do
+     ns=$((ns+1))
+   done
+   mv log.getkf log.getkf.${ns}
+ fi
+#--------------------------------------------------------------------------------------------
+ for dir in obsout analysis stdoutNerr.observer stdoutNerr.solver
+ do
+   if [ -d ${dir} ]
+   then
+     ns=1
+     while [ -d ${dir}.${ns} ]
+     do
+       ns=$((ns+1))
+     done
+     mv ${dir} ${dir}.${ns}
+   fi
+ done
+
+ rm -f core.*
+
+ mkdir -p analysis/mean analysis/increment hofx observer solver
+
+ num_member=80
+ n=1
+ while [ $n -le ${num_member} ]
+ do
+   if [ $n -lt 10 ]
+   then
+     member_str=00${n}
+   elif [ $n -lt 100 ]
+   then
+     member_str=0${n}
+   else
+     member_str=${n}
+   fi
+
+   dirname=mem${member_str}
+   mkdir -p analysis/${dirname}
+
+   n=$(( $n + 1 ))
+ done
+
+ srun -n TOTALCPUS ${executable} getkf.yaml.rr.observer
+
+ if [ -d stdoutNerr ]
+ then
+   mv stdoutNerr stdoutNerr.observer
+ fi
+
+#concatenate.sh
+ 
+ srun -n TOTALCPUS ${executable} getkf.yaml.solver
+
+ if [ -d stdoutNerr ]
+ then
+   mv stdoutNerr stdoutNerr.solver
+ fi
+
+#sacct --format=JobID,CPUTime,Elapsed,AveVMSize,MaxRSS,NodeList%30 --units=M -j $SLURM_JOBID
+

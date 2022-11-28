@@ -1,0 +1,237 @@
+  - obs space:
+      name: Surface
+      distribution:
+        name: Halo
+        halo size: 1250e3
+      io pool:
+        max pool size: 1
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: ioda_v2_data/sfc_ps_obs_YYYYMMDDHH.nc4
+        obsgrouping:
+          group variables: ["station_id", "datetime"]
+          sort variable: "air_pressure"
+          sort order: "descending"
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: obsout/sfc_ps_obs_YYYYMMDDHH.nc4
+      simulated variables: [surface_pressure]
+    obs operator:
+      name: Composite
+      components:
+       - name: SfcPCorrected
+         variables:
+         - name: surface_pressure
+        #da_psfc_scheme: UKMO
+        #geovar_geomz: geopotential_height
+         geovar_sfc_geomz: surface_altitude
+    obs error:
+      covariance model: diagonal
+    obs filters:
+    # Reject all obs with PreQC mark already set above 3
+    - filter: PreQC
+      maxvalue: 3
+      action:
+        name: reject
+    #
+    - filter: Bounds Check
+      filter variables:
+      - name: surface_pressure
+      minvalue: 37499
+      maxvalue: 106999
+      action:
+        name: reject
+    #
+    - filter: Perform Action
+      filter variables:
+      - name: surface_pressure
+      action:
+        name: assign error
+        error parameter: 100.0     # 1.0 hPa
+    #
+#   - filter: Perform Action
+#     filter variables:
+#     - name: surface_pressure
+#     action:
+#       name: assign error
+#       error function:
+#         name: ObsErrorModelStepwiseLinear@ObsFunction
+#         options:
+#           xvar:
+#             name: ObsValue/surface_pressure
+#           xvals: [80000, 75000]
+#           errors: [110, 120]        # 1.1 mb below 800 mb and 1.2 mb agove 750 mb
+    #
+    # Gross error check with (O - B) / ObsError greater than threshold.
+    - filter: Background Check
+      filter variables:
+      - name: surface_pressure
+      threshold: 3.6
+      absolute threshold: 990.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+
+  - obs space:
+      name: Radiosonde
+      distribution:
+        name: Halo
+        halo size: 1250e3
+      io pool:
+        max pool size: 1
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: ioda_v2_data/sondes_ps_obs_YYYYMMDDHH.nc4
+        obsgrouping:
+          group variables: ["station_id", "datetime"]
+          sort variable: "air_pressure"
+          sort order: "descending"
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: obsout/sondes_ps_obs_YYYYMMDDHH.nc4
+      simulated variables: [surface_pressure]
+    obs operator:
+      name: Composite
+      components:
+       - name: SfcPCorrected
+         variables:
+         - name: surface_pressure
+        #da_psfc_scheme: UKMO
+        #geovar_geomz: geopotential_height
+         geovar_sfc_geomz: surface_altitude
+    obs error:
+      covariance model: diagonal
+    obs filters:
+    # Reject all obs with PreQC mark already set above 3
+    - filter: PreQC
+      maxvalue: 3
+      action:
+        name: reject
+    #
+    - filter: Bounds Check
+      filter variables:
+      - name: surface_pressure
+      minvalue: 37499
+      maxvalue: 106999
+      action:
+        name: reject
+    #
+    - filter: Perform Action
+      filter variables:
+      - name: surface_pressure
+      action:
+        name: assign error
+        error parameter: 100.0     # 1.0 hPa
+    #
+#   - filter: Perform Action
+#     filter variables:
+#     - name: surface_pressure
+#     action:
+#       name: assign error
+#       error function:
+#         name: ObsErrorModelStepwiseLinear@ObsFunction
+#         options:
+#           xvar:
+#             name: ObsValue/surface_pressure
+#           xvals: [80000, 75000]
+#           errors: [110, 120]        # 1.1 mb below 800 mb and 1.2 mb agove 750 mb
+    #
+    # Gross error check with (O - B) / ObsError greater than threshold.
+    - filter: Background Check
+      filter variables:
+      - name: surface_pressure
+      threshold: 3.6
+      absolute threshold: 990.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+
+  - obs space:
+      name: Ship
+      distribution:
+        name: Halo
+        halo size: 1250e3
+      io pool:
+        max pool size: 1
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: ioda_v2_data/sfcship_ps_obs_YYYYMMDDHH.nc4
+        obsgrouping:
+          group variables: ["station_id", "datetime"]
+          sort variable: "air_pressure"
+          sort order: "descending"
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: obsout/sfcship_ps_obs_YYYYMMDDHH.nc4
+      simulated variables: [surface_pressure]
+    obs operator:
+      name: Composite
+      components:
+       - name: SfcPCorrected
+         variables:
+         - name: surface_pressure
+        #da_psfc_scheme: UKMO
+        #geovar_geomz: geopotential_height
+         geovar_sfc_geomz: surface_altitude
+    obs error:
+      covariance model: diagonal
+    obs filters:
+    # Reject all obs with PreQC mark already set above 3
+    - filter: PreQC
+      maxvalue: 3
+      action:
+        name: reject
+    #
+    - filter: Bounds Check
+      filter variables:
+      - name: surface_pressure
+      minvalue: 37499
+      maxvalue: 106999
+      action:
+        name: reject
+    #
+    - filter: Perform Action
+      filter variables:
+      - name: surface_pressure
+      action:
+        name: assign error
+        error parameter: 100.0     # 1.0 hPa
+    #
+#   - filter: Perform Action
+#     filter variables:
+#     - name: surface_pressure
+#     action:
+#       name: assign error
+#       error function:
+#         name: ObsErrorModelStepwiseLinear@ObsFunction
+#         options:
+#           xvar:
+#             name: ObsValue/surface_pressure
+#           xvals: [80000, 75000]
+#           errors: [110, 120]        # 1.1 mb below 800 mb and 1.2 mb agove 750 mb
+    #
+    # Gross error check with (O - B) / ObsError greater than threshold.
+    - filter: Background Check
+      filter variables:
+      - name: surface_pressure
+      threshold: 3.6
+      absolute threshold: 990.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+

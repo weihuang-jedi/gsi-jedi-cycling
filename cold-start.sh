@@ -15,7 +15,7 @@
 
 cat > ${run_dir}/analdate.sh << EOF1
 export analdate=${datestr}
-export analdate_end=2020011600
+export analdate_end=2020020100
 EOF1
 
 cat > ${run_dir}/fg_only.sh << EOF2
