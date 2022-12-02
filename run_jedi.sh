@@ -7,9 +7,9 @@ source ~/intelenv
 export VERBOSE=${VERBOSE:-"NO"}
 hydrostatic=${hydrostatic:=".false."}
 launch_level=$(echo "$LEVS/2.35" |bc)
-if [ $VERBOSE = "YES" ]; then
+#if [ $VERBOSE = "YES" ]; then
  set -x
-fi
+#fi
 
 source ${datapath}/analdate.sh
 ulimit -s unlimited
@@ -93,11 +93,13 @@ done
 
 cd ${run_dir}
 
+/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/gen_ensmean.sh ${run_dir}
+
 rm -rf analysis hofx obsout stdoutNerr
 mkdir -p analysis/mean analysis/increment hofx obsout
 
 number_members=80
-n=1
+n=0
 while [ $n -le $number_members ]
 do
    if [ $n -lt 10 ]
@@ -147,9 +149,9 @@ totnodes=6
  MYLAYOUT="3,2"
 #NODES=$SLURM_NNODES
 
- number_members=81
+ number_members=80
  n=0
- while [ $n -lt $number_members ]
+ while [ $n -le $number_members ]
  do
    used_nodes=0
    while [ $used_nodes -lt $NODES ] && [ $n -le $number_members ]
@@ -219,8 +221,8 @@ echo "srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode 
 echo "  --exclusive --cpu-bind=cores --verbose $executable getkf.yaml" >> ${run_dir}/logs/run_jedi.out
 echo "srun: `which srun`" >> ${run_dir}/logs/run_jedi.out
 
-srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode \
-        $executable getkfl.solver.yam
+#srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode $executable getkfl.solver.yaml
+srun -n $nprocs $executable getkfl.solver.yaml
 
 interpsrcdir=/work2/noaa/gsienkf/weihuang/production/run/transform/interp_fv3cube2gaussian
 prefix=${year}${month}${day}.${hour}0000.
