@@ -15,7 +15,7 @@ window begin: &date WINDOWBEGINDATETIME
 window length: PT6H
 
 background:
-  date: *date
+  date: BACKGROUNDDATETIME
   members from template:
     nmembers: 1
     template:
@@ -37,11 +37,11 @@ driver:
   do posterior observer: false
  #do test prints: true
   do test prints: false
-  save posterior mean: true
+  save posterior mean: false
   save posterior ensemble: false
   save prior mean: false
-  save posterior mean increment: true
-  save posterior ensemble increments: true
+  save posterior mean increment: false
+  save posterior ensemble increments: false
   update obs config with geometry info: false
   run as observer only: true
 
@@ -58,38 +58,20 @@ local ensemble DA:
 
 # Analysis output
 # ---------------
-#output:
-#  filetype: fms restart
-#  datapath: analysis/mean
-#  filename_core: fv_core.res.nc
-#  filename_trcr: fv_tracer.res.nc
-#  filename_sfcd: sfc_data.nc
-#  filename_sfcw: fv_srf_wnd.res.nc
-#  filename_cplr: coupler.res
-#  first: PT0H
-#  frequency: PT1H
-#
-#output increment:
-#  filetype: fms restart
-#  datapath: analysis/increment
-#  filename_core: fv_core.res.nc
-#  filename_trcr: fv_tracer.res.nc
-#  filename_sfcd: sfc_data.nc
-#  filename_sfcw: fv_srf_wnd.res.nc
-#  filename_cplr: coupler.res
-#  first: PT0H
-#  frequency: PT1H
-
 # for realistic output, use gfs filetype for output
 # here we are using latlon for ease of visualisation
 output ensemble increments:
-  filetype: auxgrid
-  gridtype: gaussian
-  filename: analysis/mem%{member}%/getkf.increment.
+  filetype: fms restart
+  datapath: analysis/increment/mem017
+  filename_core: fv_core.res.nc
+  filename_trcr: fv_tracer.res.nc
+  filename_sfcd: sfc_data.nc
+  filename_sfcw: fv_srf_wnd.res.nc
+  filename_cplr: coupler.res
 
 output:
   filetype: auxgrid
-  gridtype: latlon
+  gridtype: gaussian
   filename: analysis/mean/mean.
 
 output increment:

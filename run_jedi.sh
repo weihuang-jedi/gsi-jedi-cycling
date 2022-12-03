@@ -147,7 +147,7 @@ totnodes=6
 
  obstype=sondes
  MYLAYOUT="3,2"
-#NODES=$SLURM_NNODES
+ NODES=$SLURM_NNODES
 
  number_members=80
  n=0
@@ -172,13 +172,14 @@ totnodes=6
      mkdir -p obsout/${member_str}
 
 sed -e "s?LAYOUT?${MYLAYOUT}?g" \
-  -e "s?MEMSTR?${member_str}?g" \
-  -e "s?WINDOWBEGINDATETIME?${windowdatetime}?g" \
-  -e "s?BACKGROUNDDATETIME?${backgrounddatetime}?g" \
-  ${jeditemplatedir}/getkf.yaml.template.1member.rr.observer > obsout/getkf.yaml.observer.${member_str}
+    -e "s?MEMSTR?${member_str}?g" \
+    -e "s?WINDOWBEGINDATETIME?${windowdatetime}?g" \
+    -e "s?BACKGROUNDDATETIME?${backgrounddatetime}?g" \
+    ${jeditemplatedir}/getkf.yaml.template.1member.rr.observer > obsout/getkf.yaml.observer.${member_str}
 
 sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
-  ${jeditemplatedir}/${obstype}.obs.yaml.template.rr.observer >> obsout/getkf.yaml.observer.${member_str}
+    -e "s?MEMSTR?${member_str}?g" \
+    ${jeditemplatedir}/${obstype}.obs.yaml.template.rr.observer >> obsout/getkf.yaml.observer.${member_str}
 
      mkdir -p obsout/${member_str}
      srun -N 1 -n 36 ${executable} obsout/getkf.yaml.observer.${member_str} >& obsout/log.${member_str} &
