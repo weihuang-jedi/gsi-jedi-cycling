@@ -17,7 +17,9 @@ window length: PT6H
 background:
   date: BACKGROUNDDATETIME
   members from template:
+    pattern: '%mem%'
     nmembers: 1
+    zero padding: 3
     template:
       datetime: BACKGROUNDDATETIME
       datapath: MEMSTR/INPUT
@@ -27,8 +29,8 @@ background:
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
       filetype: fms restart
-      state variables: [ua, va, t, DZ, delp, phis, sphum, o3mr]
-     #state variables: [u,v,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+      state variables: [u, v, t, DZ, delp, phis, sphum, o3mr]
+     #state variables: [u,v,t,delp,DZ,sphum,ice_wat,liq_wat,o3mr,phis,
      #                  slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
      #                  u_srf,v_srf,f10m]
 
@@ -52,32 +54,55 @@ local ensemble DA:
     lengthscale: 14
     lengthscale units: levels
   inflation:
-    rtps: 0.85
-    rtpp: 0.0
+    rtps: 0.5
+    rtpp: 0.6
     mult: 1.0
 
 # Analysis output
 # ---------------
-# for realistic output, use gfs filetype for output
-# here we are using latlon for ease of visualisation
+#output:
+#  filetype: fms restart
+#  datapath: analysis/mean
+#  filename_core: fv_core.res.nc
+#  filename_trcr: fv_tracer.res.nc
+#  filename_sfcd: sfc_data.nc
+#  filename_sfcw: fv_srf_wnd.res.nc
+#  filename_cplr: coupler.res
+
+#output increment:
+#  filetype: fms restart
+#  datapath: analysis/increment
+#  filename_core: fv_core.res.nc
+#  filename_trcr: fv_tracer.res.nc
+#  filename_sfcd: sfc_data.nc
+#  filename_sfcw: fv_srf_wnd.res.nc
+#  filename_cplr: coupler.res
+
 output ensemble increments:
   filetype: fms restart
-  datapath: analysis/increment/mem017
+  datapath: analysis/increment/MEMSTR
   filename_core: fv_core.res.nc
   filename_trcr: fv_tracer.res.nc
   filename_sfcd: sfc_data.nc
   filename_sfcw: fv_srf_wnd.res.nc
   filename_cplr: coupler.res
 
-output:
-  filetype: auxgrid
-  gridtype: gaussian
-  filename: analysis/mean/mean.
+# for realistic output, use gfs filetype for output
+# here we are using latlon for ease of visualisation
+#output ensemble increments:
+#  filetype: auxgrid
+#  gridtype: gaussian
+#  filename: Data/ens/mem%{member}%/getkf.increment.
 
-output increment:
-  filetype: auxgrid
-  gridtype: gaussian
-  filename: analysis/increment/xainc.
+#output:
+#  filetype: auxgrid
+#  gridtype: latlon
+#  filename: analysis/mean/mean.
+
+#output increment:
+#  filetype: auxgrid
+#  gridtype: gaussian
+#  filename: analysis/increment/xainc.
 
 # Observing system
 # ----------------
