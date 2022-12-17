@@ -141,9 +141,7 @@ executable=$jediblddir/bin/fv3jedi_letkf.x
 export OMP_NUM_THREADS=1
 export corespernode=40
 export mpitaskspernode=40
-nprocs=240
 count=1
-totnodes=6
 
  echo "run observer"
  obstype=sondes

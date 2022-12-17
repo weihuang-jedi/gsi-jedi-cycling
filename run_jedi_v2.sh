@@ -95,8 +95,8 @@ cd ${run_dir}
 
 /work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/gen_ensmean.sh ${run_dir}
 
-rm -rf analysis hofx obsout stdoutNerr
-mkdir -p analysis/mean analysis/increment hofx obsout
+rm -rf analysis hofx obsout stdoutNerr observer solver
+mkdir -p analysis/mean analysis/increment hofx obsout solver
 
 number_members=80
 n=0
@@ -194,6 +194,7 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
  cd ${run_dir}
  mv obsout observer
 
+ number_members=81
  for var in sondes_tsen sondes_tv sondes_q sondes_uv
  do
    time python /work2/noaa/gsienkf/weihuang/production/run/transform/concanate-observer.py \
