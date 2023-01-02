@@ -2,7 +2,6 @@
 # model was compiled with these 
 echo "run Jedi starting at `date`"
 source $MODULESHOME/init/sh
-source ~/intelenv
 
 export VERBOSE=${VERBOSE:-"NO"}
 hydrostatic=${hydrostatic:=".false."}
@@ -10,6 +9,8 @@ launch_level=$(echo "$LEVS/2.35" |bc)
 #if [ $VERBOSE = "YES" ]; then
  set -x
 #fi
+
+source ~/intelenv
 
 source ${datapath}/analdate.sh
 ulimit -s unlimited
@@ -21,15 +22,19 @@ export day=`echo $analdate |cut -c 7-8`
 export hour=`echo $analdate |cut -c 9-10`
 
 export PROJ_LIB=/work2/noaa/gsienkf/weihuang/anaconda3/share/proj
-export PYTHONPATH=/work/noaa/gsienkf/weihuang/jedi/vis_tools/xESMF/build/lib
-export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib:$PYTHONPATH
+export PYTHONPATH=/work/noaa/gsienkf/weihuang/jedi/vis_tools/xESMF/build/lib:/work2/noaa/gsienkf/weihuang/anaconda3/lib
 export LD_LIBRARY_PATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib:${LD_LIBRARY_PATH}
 export PATH=/work2/noaa/gsienkf/weihuang/anaconda3/bin:${PATH}
 
-#export iodablddir=/work2/noaa/gsienkf/weihuang/production2/build/ioda-bundle
-export iodablddir=/work2/noaa/gsienkf/weihuang/jedi/build/ioda-bundle
+#ioda-bundle build dir:
+export iodablddir=/work2/noaa/gsienkf/weihuang/production2/build/ioda-bundle
 export LD_LIBRARY_PATH=${iodablddir}/lib:$LD_LIBRARY_PATH
 export PYTHONPATH=${iodablddir}/lib/python3.9/pyioda:$PYTHONPATH
+
+#fv3-bundle build dir:
+export jediblddir=/work2/noaa/gsienkf/weihuang/production2/build/fv3-bundle
+export LD_LIBRARY_PATH=${jediblddir}/lib:$LD_LIBRARY_PATH
+executable=$jediblddir/bin/fv3jedi_letkf.x
 
 echo "PYTHONPATH: $PYTHONPATH"
 
@@ -122,16 +127,11 @@ echo "cd ${run_dir}" >> ${run_dir}/logs/run_jedi.out
 
 nodes=6
 NUMMEM=80
-MYLAYOUT="5,8"
+MYLAYOUT="8,5"
 backgrounddatetime=${year}-${month}-${day}T${hour}:00:00Z
 windowdatetime=`python ${enkfscripts}/setjedistartdate.py --year=${year} --month=${month} --day=${day} --hour=${hour} --intv=3`
 echo "windowdatetime=$windowdatetime"
 yyyymmddhh=${year}${month}${day}${hour}
-
-source ~/intelenv
-export jediblddir=/work2/noaa/gsienkf/weihuang/production2/build/fv3-bundle
-export LD_LIBRARY_PATH=${jediblddir}/lib:$LD_LIBRARY_PATH
-executable=$jediblddir/bin/fv3jedi_letkf.x
 
 #--------------------------------------------------------------------------------------------
 #export OOPS_DEBUG=-11
@@ -192,6 +192,13 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
  cd ${run_dir}
  mv obsout observer
 
+ export PROJ_LIB=/work2/noaa/gsienkf/weihuang/anaconda3/share/proj
+ export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib
+ export LD_LIBRARY_PATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib:${LD_LIBRARY_PATH}
+ export PATH=/work2/noaa/gsienkf/weihuang/anaconda3/bin:${PATH}
+
+ which python
+
  number_members=81
  for var in sondes_tsen sondes_tv sondes_q sondes_uv
  do
@@ -207,7 +214,8 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
  echo "run solver"
  cd ${run_dir}
 
- MYLAYOUT="11,6"
+#MYLAYOUT="10,6"
+ MYLAYOUT="8,5"
  NUMMEM=80
 sed -e "s?LAYOUT?${MYLAYOUT}?g" \
     -e "s?NUMBEROFMEMBERS?${NUMMEM}?g" \
@@ -219,17 +227,29 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
     ${jeditemplatedir}/${obstype}.obs.yaml.template.solver >> getkf.solver.yaml
 
 export OMP_NUM_THREADS=1
-export corespernode=40
-export mpitaskspernode=40
-nprocs=396
-totnodes=10
+export corespernode=30
+export mpitaskspernode=30
+#nprocs=360
+#totnodes=10
+totnodes=8
+MYLAYOUT="8,5"
+nprocs=240
 
-echo "srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \\" >> ${run_dir}/logs/run_jedi.out
-echo "  --exclusive --cpu-bind=cores --verbose $executable getkf.yaml" >> ${run_dir}/logs/run_jedi.out
+#echo "srun -N $totnodes -n $nprocs -c $count --ntasks-per-node=$mpitaskspernode \\" >> ${run_dir}/logs/run_jedi.out
+#echo "  --exclusive --cpu-bind=cores --verbose $executable getkf.yaml" >> ${run_dir}/logs/run_jedi.out
 echo "srun: `which srun`" >> ${run_dir}/logs/run_jedi.out
 
 #srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode $executable getkf.solver.yaml
-srun -n $nprocs $executable getkf.solver.yaml
+#srun -n $nprocs $executable getkf.solver.yaml
+ srun -N 8 -n 240 --ntasks-per-node=30 \
+        ${executable} getkf.solver.yaml
+
+#export blddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
+#export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
+
+#srun -N 8 -n 240 --ntasks-per-node=30 \
+#       /work2/noaa/gsienkf/weihuang/production/build/fv3-bundle/bin/fv3jedi_letkf.x \
+#       getkf.solver.yaml
 
 cd ${run_dir}
 echo "generate increments"
