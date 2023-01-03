@@ -1,7 +1,7 @@
 #!/bin/sh
 # model was compiled with these 
 echo "run Jedi starting at `date`"
-source $MODULESHOME/init/sh
+#source $MODULESHOME/init/sh
 
 export VERBOSE=${VERBOSE:-"NO"}
 hydrostatic=${hydrostatic:=".false."}
@@ -10,7 +10,7 @@ launch_level=$(echo "$LEVS/2.35" |bc)
  set -x
 #fi
 
-source ~/intelenv
+#source ~/intelenv
 
 source ${datapath}/analdate.sh
 ulimit -s unlimited
@@ -181,7 +181,7 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
     ${jeditemplatedir}/${obstype}.obs.yaml.template.rr.observer >> obsout/getkf.yaml.observer.${member_str}
 
      mkdir -p obsout/${member_str}
-     srun -N 1 -n 36 ${executable} obsout/getkf.yaml.observer.${member_str} >& obsout/log.${member_str} &
+     srun -N 1 -n 36 --ntasks-per-node=40 ${executable} obsout/getkf.yaml.observer.${member_str} >& obsout/log.${member_str} &
 
      n=$(( $n + 1 ))
    done
@@ -202,7 +202,7 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
  number_members=81
  for var in sondes_tsen sondes_tv sondes_q sondes_uv
  do
-   time python /work2/noaa/gsienkf/weihuang/production/run/transform/concanate-observer.py \
+   time python /work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/concanate-observer.py \
       --run_dir=${run_dir} \
       --datestr=${yyyymmddhh} \
       --nmem=${number_members} \
@@ -241,7 +241,7 @@ echo "srun: `which srun`" >> ${run_dir}/logs/run_jedi.out
 
 #srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode $executable getkf.solver.yaml
 #srun -n $nprocs $executable getkf.solver.yaml
- srun -N 8 -n 240 --ntasks-per-node=30 \
+ srun -N 6 -n 240 --ntasks-per-node=40 \
         ${executable} getkf.solver.yaml
 
 #export blddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle

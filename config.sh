@@ -119,16 +119,15 @@ elif [ "$machine" == 'orion' ]; then
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
    export obs_datapath=/work/noaa/rstprod/dump
    ulimit -s unlimited
-   source $MODULESHOME/init/sh
    source ~/intelenv
-   module use /apps/contrib/NCEP/libs/hpc-stack/modulefiles/stack
-   module load hpc/1.1.0
-   module load hpc-intel/2018.4
-   module unload mkl/2020.2
-   module load mkl/2018.4
-   module load hpc-impi/2018.4
+  #module use /apps/contrib/NCEP/libs/hpc-stack/modulefiles/stack
+  #module load hpc/1.1.0
+  #module load hpc-intel/2018.4
+  #module unload mkl/2020.2
+  #module load mkl/2018.4
+  #module load hpc-impi/2018.4
   #module load python/3.7.5
-   module load hdf5/1.10.6-parallel
+  #module load hdf5/1.10.6-parallel
    module load wgrib/1.8.0b
   #export PYTHONPATH=/home/jwhitake/.local/lib/python3.7/site-packages
    export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib
