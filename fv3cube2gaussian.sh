@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #SBATCH --ntasks-per-node=6
 #SBATCH -N 1
 #SBATCH -n 6

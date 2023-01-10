@@ -93,8 +93,8 @@ export do_cleanup='false'
 export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
 export save_hpss="false"
 
-source $MODULESHOME/init/sh
 if [ "$machine" == 'hera' ]; then
+   source $MODULESHOME/init/sh
    export basedir=/scratch2/BMC/gsienkf/${USER}
    export datadir=$basedir
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
@@ -118,21 +118,20 @@ elif [ "$machine" == 'orion' ]; then
    export datadir=$basedir
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
    export obs_datapath=/work/noaa/rstprod/dump
-   ulimit -s unlimited
-   source ~/intelenv
-  #module use /apps/contrib/NCEP/libs/hpc-stack/modulefiles/stack
-  #module load hpc/1.1.0
-  #module load hpc-intel/2018.4
-  #module unload mkl/2020.2
-  #module load mkl/2018.4
-  #module load hpc-impi/2018.4
-  #module load python/3.7.5
-  #module load hdf5/1.10.6-parallel
+  #module purge
+   module use /apps/contrib/NCEP/libs/hpc-stack/modulefiles/stack
+   module load hpc/1.1.0
+   module load hpc-intel/2018.4
+   module unload mkl/2020.2
+   module load mkl/2018.4
+   module load hpc-impi/2018.4
+   module load hdf5/1.10.6-parallel
    module load wgrib/1.8.0b
   #export PYTHONPATH=/home/jwhitake/.local/lib/python3.7/site-packages
    export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib
    export HDF5_DISABLE_VERSION_CHECK=1
    export WGRIB=`which wgrib`
+   ulimit -s unlimited
 elif [ "$machine" == 'gaea' ]; then
    export basedir=/lustre/f2/dev/${USER}
    export datadir=/lustre/f2/scratch/${USER}

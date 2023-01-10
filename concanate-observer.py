@@ -79,16 +79,16 @@ def process(ncinlist, ncout, grplist):
       ensvarinfo[grpname] = {}
       if(grpname == 'hofx0_1'):
         for varname, variable in group.variables.items():
-          val = group[varname][:]
+         #val = group[varname][:]
           ensvarinfo[grpname][varname] = []
-          ensvarinfo[grpname][varname].append(val)
+         #ensvarinfo[grpname][varname].append(val)
       else:
         if(grpname == 'hofx_y_mean_xb0'):
           ncoutgroup = ncout.createGroup(grpname)
           copy_var_in_group(group, ncoutgroup)
+
         for varname, variable in group.variables.items():
           val = group[varname][:]
-          val[:] = 0.0
           ensvarinfo[grpname][varname] = val
     else:
       if(grpname.find('hofx') < 0):
@@ -120,9 +120,9 @@ def process(ncinlist, ncout, grplist):
   ncoutgroup = ncout.createGroup(grpname)
   for varname in varlist:
     meanval = average(ensvarinfo[grpname][varname])
-    print('varname = ', varname)
-    print('meanval.shape = ', meanval.shape)
-    print('meanval.size = ', meanval.size)
+    print('get avearge for varname = ', varname)
+   #print('meanval.shape = ', meanval.shape)
+   #print('meanval.size = ', meanval.size)
     meanvars[varname] = meanval
 
   grpname = 'ombg'
@@ -138,6 +138,10 @@ def process(ncinlist, ncout, grplist):
       newvar = ncoutgroup.createVariable(varname, variable.datatype, variable.dimensions)
     copy_attributes(variable, newvar)
     val = ensvarinfo[grpname][varname] + ensvarinfo['hofx_y_mean_xb0'][varname] - meanvars[varname]
+    print('\told-ombg.max: %f, old-ombg.min: %f' %(np.max(ensvarinfo[grpname][varname]), np.min(ensvarinfo[grpname][varname])))
+    print('\thofx_y_mean_zb0.max: %f, hofx_y_mean_zb0.min: %f' %(np.max(ensvarinfo['hofx_y_mean_xb0'][varname]), np.min(ensvarinfo['hofx_y_mean_xb0'][varname])))
+    print('\tmeanvars.max: %f, meanvars.min: %f' %(np.max(meanvars[varname]), np.min(meanvars[varname])))
+    print('\tnew-ombg.max: %f, new-ombg.min: %f' %(np.max(val), np.min(val)))
    #val = ensvarinfo[grpname][varname]
     newvar[:] = val[:]
 

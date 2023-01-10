@@ -6,14 +6,11 @@ echo "run Jedi starting at `date`"
 export VERBOSE=${VERBOSE:-"NO"}
 hydrostatic=${hydrostatic:=".false."}
 launch_level=$(echo "$LEVS/2.35" |bc)
-#if [ $VERBOSE = "YES" ]; then
+if [ $VERBOSE = "YES" ]; then
  set -x
-#fi
-
-#source ~/intelenv
+fi
 
 source ${datapath}/analdate.sh
-ulimit -s unlimited
 
 # yr,mon,day,hr at middle of assim window (analysis time)
 export year=`echo $analdate |cut -c 1-4`
@@ -21,44 +18,33 @@ export month=`echo $analdate |cut -c 5-6`
 export day=`echo $analdate |cut -c 7-8`
 export hour=`echo $analdate |cut -c 9-10`
 
-export PROJ_LIB=/work2/noaa/gsienkf/weihuang/anaconda3/share/proj
-export PYTHONPATH=/work/noaa/gsienkf/weihuang/jedi/vis_tools/xESMF/build/lib:/work2/noaa/gsienkf/weihuang/anaconda3/lib
-export LD_LIBRARY_PATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib:${LD_LIBRARY_PATH}
-export PATH=/work2/noaa/gsienkf/weihuang/anaconda3/bin:${PATH}
-
-#ioda-bundle build dir:
-export iodablddir=/work2/noaa/gsienkf/weihuang/production2/build/ioda-bundle
-export LD_LIBRARY_PATH=${iodablddir}/lib:$LD_LIBRARY_PATH
-export PYTHONPATH=${iodablddir}/lib/python3.9/pyioda:$PYTHONPATH
-
-#fv3-bundle build dir:
-export jediblddir=/work2/noaa/gsienkf/weihuang/production2/build/fv3-bundle
-export LD_LIBRARY_PATH=${jediblddir}/lib:$LD_LIBRARY_PATH
-executable=$jediblddir/bin/fv3jedi_letkf.x
-
-echo "PYTHONPATH: $PYTHONPATH"
-
 #input file fir.
 run_dir=${datapath}/${analdate}
 
-echo "run Jedi starting at `date`" > ${run_dir}/logs/run_jedi.out
-module list >> ${run_dir}/logs/run_jedi.out
+#source ~/jediprodenv
+source ~/gnuprodenv
+executable=${jediblddir}/bin/fv3jedi_letkf.x
+ulimit -s unlimited
+
+echo "run Jedi starting at `date`"
 
 cd ${run_dir}
 rm -rf ioda_v2_data diag
 mkdir ioda_v2_data diag
 cp diag_conv_* diag/.
-module list
 which python
-echo "in run_dir: $${run_dir}" >> ${run_dir}/logs/run_jedi.out
-echo "ls diag" >> ${run_dir}/logs/run_jedi.out
-echo "`ls diag`" >> ${run_dir}/logs/run_jedi.out
+echo "in run_dir: $${run_dir}"
+echo "ls diag"
+ls diag
+
+echo "module list"
+module list
 
 python ${iodablddir}/bin/proc_gsi_ncdiag.py \
        -o ioda_v2_data diag
 
-echo "ls ioda_v2_data" >> ${run_dir}/logs/run_jedi.out
-echo "`ls ioda_v2_data`" >> ${run_dir}/logs/run_jedi.out
+echo "ls ioda_v2_data"
+ls ioda_v2_data
 
 minute=0
 second=0
@@ -98,6 +84,14 @@ done
 
 cd ${run_dir}
 
+echo "Run gen_ensmean.sh"
+
+echo "module list"
+module list
+
+#echo "env"
+#env
+
 /work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/gen_ensmean.sh ${run_dir}
 
 rm -rf analysis hofx obsout stdoutNerr observer solver
@@ -134,8 +128,8 @@ echo "windowdatetime=$windowdatetime"
 yyyymmddhh=${year}${month}${day}${hour}
 
 #--------------------------------------------------------------------------------------------
-#export OOPS_DEBUG=-11
-#export OOPS_TRACK=-11
+ export OOPS_DEBUG=-11
+ export OOPS_TRACK=-11
 #export OOPS_TRACE=1
 
 export OMP_NUM_THREADS=1
@@ -188,16 +182,15 @@ sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
    wait
  done
 
+echo "module list"
+module list
+
+echo "env"
+env
+
  echo "concanate observer"
  cd ${run_dir}
  mv obsout observer
-
- export PROJ_LIB=/work2/noaa/gsienkf/weihuang/anaconda3/share/proj
- export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib
- export LD_LIBRARY_PATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib:${LD_LIBRARY_PATH}
- export PATH=/work2/noaa/gsienkf/weihuang/anaconda3/bin:${PATH}
-
- which python
 
  number_members=81
  for var in sondes_tsen sondes_tv sondes_q sondes_uv

@@ -157,7 +157,7 @@ echo "DataPath: ${datapath}"
 ############################################################################
 # Main Program
 
-env
+#env
 echo "starting the cycle (${idate_job} out of ${ndates_job})"
 
 export datapath2="${datapath}/${analdate}/"
@@ -319,7 +319,7 @@ fi
 
 if [ $jedirun == "true" ] && [ $cold_start == 'false' ]; then
    echo "Run JEDI for: $analdate start at: `date`"
-   sh ${enkfscripts}/run_jedi.sh
+   ${enkfscripts}/run_jedi.sh
 
    jedi_done=`cat ${current_logdir}/run_jedi.log`
    if [ $jedi_done == 'yes' ]; then
@@ -331,6 +331,17 @@ if [ $jedirun == "true" ] && [ $cold_start == 'false' ]; then
 else
    echo "Did not run JEDI for: $analdate "
 fi
+
+  #module purge
+  #module use /apps/contrib/NCEP/libs/hpc-stack/modulefiles/stack
+  #module load hpc/1.1.0
+  #module load hpc-intel/2018.4
+  #module unload mkl/2020.2
+  #module load mkl/2018.4
+  #module load hpc-impi/2018.4
+  #module load hdf5/1.10.6-parallel
+  #module load wgrib/1.8.0b
+  #module load slurm
 
 # loop over members run observer sequentially (for testing)
 #export skipcat="false"

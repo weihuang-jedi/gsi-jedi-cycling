@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #set -x
 
@@ -24,7 +24,8 @@
    fi
  fi
 
- typelist=(fv_core.res fv_srf_wnd.res fv_tracer.res oro_data phy_data sfc_data)
+#typelist=(fv_core.res fv_srf_wnd.res fv_tracer.res oro_data phy_data sfc_data)
+ typelist=(fv_core.res fv_srf_wnd.res fv_tracer.res phy_data sfc_data)
 
  for i in ${!typelist[@]}
  do
