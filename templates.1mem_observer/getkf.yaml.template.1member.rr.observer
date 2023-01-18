@@ -61,6 +61,7 @@ driver:
   save posterior ensemble increments: false
   update obs config with geometry info: false
   run as observer only: true
+  use control member: true
 
 local ensemble DA:
   solver: GETKF
