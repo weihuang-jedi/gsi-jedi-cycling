@@ -1,0 +1,35 @@
+  - obs space:
+    name: abi_g16_bt_64km
+    distribution:
+      name: RoundRobin
+    io pool:
+      max pool size: 1
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: ioda_v2_data/abi_g16_obs_YYYYMMDDHH.nc4
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: obsout/abi_g16_obs_YYYYMMDDHH.nc4
+        allow overwrite: true
+      _source: noaa
+      simulated variables: [brightness_temperature]
+      channels: &abi_g16_channels 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+    obs operator:
+      name: CRTM
+      Absorbers: [H2O, O3] #, CO2]
+      obs options:
+        Sensor_ID: abi_g16
+        EndianType: little_endian
+    obs filters:
+    # Reject all obs with PreQC mark already set above 3
+    - filter: PreQC
+      maxvalue: 3
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+

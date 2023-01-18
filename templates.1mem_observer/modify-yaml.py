@@ -2,37 +2,35 @@ import getopt
 import os, sys
 
 #--------------------------------------------------------------------------------
-def process_file(in_flnm, OF, obstype, obskind):
+def process_file(in_flnm, OF, obstype):
   obs_filters = 0
   with open(in_flnm) as fp:
     lines = fp.readlines()
     num_lines = len(lines)
     print('Total number of lines: ', num_lines)
 
-    no = 0
-    nl = 0
+    OF.write('  - obs space:\n')
+   #OF.write('    name: abi_g16_bt_64km\n')
+    OF.write('    name: %s\n' %(obstype))
+    OF.write('    distribution:\n')
+    OF.write('      name: RoundRobin\n')
+    OF.write('    io pool:\n')
+    OF.write('      max pool size: 1\n')
+    OF.write('    obsdatain:\n')
+    OF.write('      engine:\n')
+    OF.write('        type: H5File\n')
+    OF.write('        obsfile: ioda_v2_data/%s_obs_YYYYMMDDHH.nc4\n' %(obstype))
+    OF.write('    obsdataout:\n')
+    OF.write('      engine:\n')
+    OF.write('        type: H5File\n')
+    OF.write('        obsfile: obsout/%s_obs_YYYYMMDDHH.nc4\n' %(obstype))
+    OF.write('        allow overwrite: true\n')
+
+    nl = 9
+   #nl = 11
     while(nl < num_lines):
       print('Line %d: %s' %(nl, lines[nl]))
-      print('obs_filters = ', obs_filters)
-      if(nl < 1):
-        oline = '  - %s' %(lines[nl])
-      else:
-        if(lines[nl].find('obsfile: ') > 0):
-          print('Line %d: %s' %(nl, lines[nl]))
-          if(no < 1):
-            oline = '          obsfile: ioda_v2_data/%s_%s_obs_YYYYMMDDHH.nc4\n' %(obstype, obskind)
-          else:
-            oline = '          obsfile: obsout/MEMSTR/%s_%s_obs_YYYYMMDDHH.nc4\n' %(obstype, obskind)
-          no += 1
-        else:
-          if(1 == obs_filters):
-            oline = '  %s' %(lines[nl])
-          else:
-            oline = '    %s' %(lines[nl])
-            if(lines[nl].find(' filters') > 0):
-              print('Line %d: %s' %(nl, lines[nl]))
-              obs_filters = 1
-      OF.write(oline)
+      OF.write('    %s' %(lines[nl]))
       nl += 1
     OF.write('    obs localizations:\n')
     OF.write('    - localization method: Horizontal Gaspari-Cohn\n')
@@ -42,9 +40,12 @@ def process_file(in_flnm, OF, obstype, obskind):
 #--------------------------------------------------------------------------------
 if __name__== '__main__':
   debug = 1
-  obstype = 'aircraft'
+  srcdir = '/work2/noaa/gsienkf/weihuang/production2/src/fv3-bundle/ufo/ewok/skylab'
+ #obstype = 'amsua_aqua'
+ #obstype = 'abi_g16'
+  obstype = 'amsua_metop-a'
 
-  opts, args = getopt.getopt(sys.argv[1:], '', ['debug=', 'obstype='])
+  opts, args = getopt.getopt(sys.argv[1:], '', ['debug=', 'srcdir=', 'obstype='])
 
   for o, a in opts:
     if o in ('--debug'):
@@ -54,12 +55,12 @@ if __name__== '__main__':
     else:
       assert False, 'unhandled option'
 
-  iflnm = 'gdas-obs-config/%s.yaml' %(obstype)
+  iflnm = '%s/%s.yaml' %(srcdir, obstype)
+ #iflnm = '%s/%s_bt_64km.yaml' %(srcdir, obstype)
   oflnm = '%s.obs.yaml.template.rr.observer' %(obstype)
 
   OF = open(oflnm, 'w')
-  for obskind in ['tsen', 'uv', 'q']:
-    process_file(iflnm, OF, obstype, obskind)
-    OF.write('\n')
+  process_file(iflnm, OF, obstype)
+  OF.write('\n')
   OF.close()
 
