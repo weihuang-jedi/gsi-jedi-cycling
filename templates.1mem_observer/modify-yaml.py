@@ -13,22 +13,25 @@ def process_file(in_flnm, OF, obstype, obskind):
     nl = 0
     while(nl < num_lines):
       print('Line %d: %s' %(nl, lines[nl]))
+      print('obs_filters = ', obs_filters)
       if(nl < 1):
         oline = '  - %s' %(lines[nl])
       else:
         if(lines[nl].find('obsfile: ') > 0):
+          print('Line %d: %s' %(nl, lines[nl]))
           if(no < 1):
             oline = '          obsfile: ioda_v2_data/%s_%s_obs_YYYYMMDDHH.nc4\n' %(obstype, obskind)
           else:
             oline = '          obsfile: obsout/MEMSTR/%s_%s_obs_YYYYMMDDHH.nc4\n' %(obstype, obskind)
           no += 1
         else:
-          if(lines[nl].find('obs filters:') > 0):
-            obs_filters = 1
-          if(obs_filters):
+          if(1 == obs_filters):
             oline = '  %s' %(lines[nl])
           else:
             oline = '    %s' %(lines[nl])
+            if(lines[nl].find(' filters') > 0):
+              print('Line %d: %s' %(nl, lines[nl]))
+              obs_filters = 1
       OF.write(oline)
       nl += 1
     OF.write('    obs localizations:\n')
