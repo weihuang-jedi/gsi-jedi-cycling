@@ -195,7 +195,7 @@ env
  number_members=81
  for var in sondes_tsen sondes_tv sondes_q sondes_uv
  do
-   time python /work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/concanate-observer.py \
+   time python /work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/concanate-using-gsi-omb.py \
       --run_dir=${run_dir} \
       --datestr=${yyyymmddhh} \
       --nmem=${number_members} \
