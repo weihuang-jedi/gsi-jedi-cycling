@@ -164,7 +164,7 @@ EOF
 
 cat enkf.nml
 
-cp ${enkfscripts}/vlocal_eig_L${LEVS}.dat ${datapath2}/vlocal_eig.dat
+cp ${enkfscripts}/textdata/vlocal_eig_L${LEVS}.dat ${datapath2}/vlocal_eig.dat
 
 /bin/rm -f ${datapath2}/enkf.log
 /bin/mv -f ${current_logdir}/ensda.out ${current_logdir}/ensda.out.save
@@ -193,7 +193,7 @@ while [ $nanal -le $nanals ]; do
    charnanal="mem"`printf %03i $nanal`
    analfile=${datapath2}/sanl_${analdate}_${charfhr}_${charnanal}
    if [ ! -s $analfile ]; then
-     echo "$analfile is missing"
+     echo "$analfile missing"
      filemissing='yes'
    fi
    nanal=$((nanal+1))

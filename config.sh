@@ -26,7 +26,7 @@ export beta=1000 # percentage of enkf increment (*10)
 # in this case, to recenter around EnVar analysis set recenter_control_wgt=100
 export recenter_control_wgt=100
 export recenter_ensmean_wgt=`expr 100 - $recenter_control_wgt`
-export exptname="jedi_C${RES}_lgetkf_sondesonly"
+export exptname="gdas-cycling-run-dir"
 # for 'passive' or 'replay' cycling of control fcst 
 export replay_controlfcst='false'
 export enkfonly='true' # pure EnKF
@@ -39,26 +39,24 @@ export rungfs='run_fv3.sh' # ensemble forecast
 #export jedirun='false'
 export jedirun='true'
 export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
-#export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/templates.GSI_QConly
-#export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
-export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/templates.1mem_observer
-export jediblddir=/work2/noaa/gsienkf/weihuang/production2/build/fv3-bundle
+export jeditemplatedir=/work2/noaa/da/weihuang/cycling/gdas-cycling-scripts/templates.gdas
+export jediblddir=/work2/noaa/da/weihuang/GDASApp/build
 
 #export do_cleanup='true' # if true, create tar files, delete *mem* files.
-export cleanup_fg='true'
-export cleanup_ensmean='true'
-export cleanup_ensmean_enkf='true'
-export cleanup_anal='true'
-export cleanup_controlanl='true'
-export cleanup_observer='true' 
+#export cleanup_fg='true'
+#export cleanup_ensmean='true'
+#export cleanup_ensmean_enkf='true'
+#export cleanup_anal='true'
+#export cleanup_controlanl='true'
+#export cleanup_observer='true' 
 export resubmit='true'
 export do_cleanup='false' # if true, create tar files, delete *mem* files.
-#export cleanup_fg='false'
-#export cleanup_ensmean='false'
-#export cleanup_ensmean_enkf='false'
-#export cleanup_anal='false'
-#export cleanup_controlanl='false'
-#export cleanup_observer='false' 
+export cleanup_fg='false'
+export cleanup_ensmean='false'
+export cleanup_ensmean_enkf='false'
+export cleanup_anal='false'
+export cleanup_controlanl='false'
+export cleanup_observer='false' 
 #export resubmit='false'
 export replay_run_observer='false' # run observer on replay control forecast
 # python script checkdate.py used to check
@@ -89,12 +87,12 @@ export controlanal="false" # hybrid-cov high-res control analysis as in ops
 #export recenter_anal="false"
 #export cleanup_fg='false'
 #export resubmit='false'
-export do_cleanup='false'
+#export do_cleanup='false'
 export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
 export save_hpss="false"
 
+source $MODULESHOME/init/sh
 if [ "$machine" == 'hera' ]; then
-   source $MODULESHOME/init/sh
    export basedir=/scratch2/BMC/gsienkf/${USER}
    export datadir=$basedir
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
@@ -118,20 +116,21 @@ elif [ "$machine" == 'orion' ]; then
    export datadir=$basedir
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
    export obs_datapath=/work/noaa/rstprod/dump
-  #module purge
+   ulimit -s unlimited
+   source $MODULESHOME/init/sh
    module use /apps/contrib/NCEP/libs/hpc-stack/modulefiles/stack
    module load hpc/1.1.0
    module load hpc-intel/2018.4
    module unload mkl/2020.2
    module load mkl/2018.4
    module load hpc-impi/2018.4
+   module load python/3.7.5
    module load hdf5/1.10.6-parallel
    module load wgrib/1.8.0b
   #export PYTHONPATH=/home/jwhitake/.local/lib/python3.7/site-packages
    export PYTHONPATH=/work2/noaa/gsienkf/weihuang/anaconda3/lib
    export HDF5_DISABLE_VERSION_CHECK=1
    export WGRIB=`which wgrib`
-   ulimit -s unlimited
 elif [ "$machine" == 'gaea' ]; then
    export basedir=/lustre/f2/dev/${USER}
    export datadir=/lustre/f2/scratch/${USER}
@@ -265,7 +264,6 @@ elif [ $RES -eq 96 ]; then
    export LONB=384   
    export LATB=192  
   #export dt_atmos=600   #Original setup. It blows up at 2020010618.
-  #export dt_atmos=450
    export dt_atmos=300
    export cdmbgwd="0.14,1.8,1.0,1.0"  # mountain blocking, ogwd, cgwd, cgwd src scaling
 elif [ $RES -eq 48 ]; then
@@ -349,7 +347,7 @@ export WRITE_STRAT_EFOLD="incvars_efold= $INCVARS_EFOLD,"
 export use_correlated_oberrs=".true."
 # NOTE: most other GSI namelist variables are in ${rungsi}
 
-export SMOOTHINF=-1 # inflation smoothing (spectral truncation)
+export SMOOTHINF=35 # inflation smoothing (spectral truncation)
 export covinflatemax=1.e2
 export reducedgrid=.false. # if T, used reduced gaussian analysis grid in EnKF
 export covinflatemin=1.0                                            
@@ -372,9 +370,9 @@ export getkf_inflation=.false.
 export modelspace_vloc=.true.
 export letkf_novlocal=.true.
 export nobsl_max=10000
-export corrlengthnh=1250
-export corrlengthtr=1250
-export corrlengthsh=1250
+export corrlengthnh=2000
+export corrlengthtr=2000
+export corrlengthsh=2000
 # The lnsigcutoff* parameters are ignored if modelspace_vloc=T
 export lnsigcutoffnh=1.5
 export lnsigcutofftr=1.5
@@ -411,7 +409,7 @@ export nanals2=-1 # longer extension. Set to -1 to disable
 #export nanals2=$NODES
 #export nanals2=$nanals
 export nitermax=1 # number of retries
-export enkfscripts="${basedir}/scripts/${exptname}"
+export enkfscripts="${basedir}/${exptname}"
 export homedir=$enkfscripts
 export incdate="${enkfscripts}/incdate.sh"
 
@@ -431,12 +429,11 @@ elif [ "$machine" == 'orion' ]; then
    export FIXDIR=/work/noaa/nems/emc.nemspara/RT/NEMSfv3gfs/input-data-20220414
    #export FIXDIR_gcyc=$FIXDIR
    export FIXDIR_gcyc=/work/noaa/global/glopara/fix_NEW # for GFSv16
-  #export python=`which python`
+   export python=`which python`
    export fv3gfspath=/work/noaa/global/glopara
    export FIXFV3=$fv3gfspath/fix_nco_gfsv16/fix_fv3_gmted2010
    export FIXGLOBAL=$fv3gfspath/fix_nco_gfsv16/fix_am
-  #export gsipath=/work/noaa/gsienkf/whitaker/GSI
-   export gsipath=/work2/noaa/da/weihuang/cycling/scripts/GSI
+   export gsipath=/work/noaa/gsienkf/whitaker/GSI
    export fixgsi=${gsipath}/fix
    #export fixcrtm=${basedir}/fix/crtm/v2.2.6/fix
    export fixcrtm=$fv3gfspath/crtm/crtm_v2.3.0
@@ -473,18 +470,15 @@ fi
 
 
 #export ANAVINFO=${fixgsi}/global_anavinfo_allhydro.l${LEVS}.txt
-#export ANAVINFO=${fixgsi}/global_anavinfo.l${LEVS}.txt
-#export ANAVINFO=${enkfscripts}/global_anavinfo_enkf.l127.txt
-#export ANAVINFO_ENKF=${ANAVINFO}
 export ANAVINFO=${fixgsi}/global_anavinfo.l${LEVS}.txt
-export ANAVINFO_ENKF=${enkfscripts}/global_anavinfo_enkf.l127.txt
+export ANAVINFO_ENKF=${ANAVINFO}
 export HYBENSINFO=${fixgsi}/global_hybens_info.l${LEVS}.txt # only used if readin_beta or readin_localization=T
 #export HYBENSINFO=${enkfscripts}/global_hybens_info.l${LEVS}.txt # only used if readin_beta or readin_localization=T
 # comment out next line to disable smoothing of ensemble perturbations
 # in stratosphere/mesosphere
 #export HYBENSMOOTHINFO=${fixgsi}/global_hybens_smoothinfo.l${LEVS}.txt
 export OZINFO=${fixgsi}/global_ozinfo.txt
-export CONVINFO=${enkfscripts}/global_convinfo.txt.sondesonly
+export CONVINFO=${enkfscripts}/textdata/global_convinfo.txt.sondesonly
 export SATINFO=${fixgsi}/global_satinfo.txt
 export NLAT=$((${LATA}+2))
 # default is to use berror file in gsi fix dir.
