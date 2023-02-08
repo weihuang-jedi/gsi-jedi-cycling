@@ -1,0 +1,31 @@
+working directory: /work2/noaa/da/weihuang/GDASApp/workdir
+GDASApp home: /work2/noaa/da/weihuang/GDASApp
+GDASApp mode: getkf
+executable options:
+  obs_yaml_dir: /work2/noaa/da/weihuang/GDASApp/parm/atm/obs/config
+  yaml_template: /work2/noaa/da/weihuang/GDASApp/parm/atm/hofx/hofx_nomodel.yaml
+  executable: /work2/noaa/da/weihuang/GDASApp/build/bin/fv3jedi_hofx_nomodel.x
+  obs_list: /work2/noaa/da/weihuang/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
+  gdas_fix_root: /work2/noaa/da/cmartin/GDASApp/fix
+  atm: true
+  layout: [3, 2]
+  atm_window_length: PT6H
+  valid_time: 2020-01-16T12:00:00Z
+  case: C96
+  npx_ges: 97
+  npy_ges: 97
+  npz_ges: 128
+  ATM_WINDOW_BEGIN: 2020-01-16T09:00:00Z
+  ATM_WINDOW_LENGTH: PT6H
+  BKG_ISOTIME: 2020-01-16T12:00:00Z
+  NMEM_ENKF: 80
+  YYYYMMDDHH: 2020011612
+  interp_method: barycentric
+job options:
+  machine: orion
+  account: da-cpu
+  queue: debug
+  partition: debug
+  walltime: '30:00'
+  ntasks: 36
+  modulepath: /work2/noaa/da/weihuang/GDASApp/modulefiles

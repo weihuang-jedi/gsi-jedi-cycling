@@ -1,0 +1,68 @@
+# Background/anaysis geometry
+# ---------------------------
+geometry:
+  fms initialization:
+    namelist filename: Data/fv3files/fmsmpp.nml
+    field table filename: Data/fv3files/field_table
+  akbk: Data/fv3files/akbk127.nc4
+  layout: !ENV ${layout}
+  npx: $(npx_ges)
+  npy: $(npy_ges)
+  npz: $(npz_ges)
+  field metadata override: Data/fieldmetadata/gfs-restart.yaml
+
+window begin: '$(ATM_WINDOW_BEGIN)'
+window length: $(ATM_WINDOW_LENGTH)
+
+background:
+  date: '$(BKG_ISOTIME)'
+  members from template:
+    pattern: '%mem%'
+    nmembers: $(NMEM_ENKF)
+    zero padding: 3
+    template:
+      datetime: $(BKG_ISOTIME)
+      datapath: $(MEMBERDATAPATH)
+      filename_core: fv_core.res.nc
+      filename_trcr: fv_tracer.res.nc
+      filename_sfcd: sfc_data.nc
+      filename_sfcw: fv_srf_wnd.res.nc
+      filename_cplr: coupler.res
+      filetype: fms restart
+      state variables: [ua, va, t, DZ, delp, phis, sphum, o3mr]
+
+driver:
+  read HX from disk: false
+  do posterior observer: false
+ #do test prints: true
+  do test prints: false
+  save posterior mean: true
+  save posterior ensemble: false
+  save prior mean: false
+  save posterior mean increment: true
+  save posterior ensemble increments: true
+  update obs config with geometry info: false
+  run as observer only: true
+
+local ensemble DA:
+  solver: GETKF
+  vertical localization:
+    fraction of retained variance: .95
+    lengthscale: 14
+    lengthscale units: levels
+  inflation:
+    rtps: 0.85
+    rtpp: 0.0
+    mult: 1.0
+
+# Analysis output
+output:
+  filetype: auxgrid
+  gridtype: gaussian
+  filename: analysis/mean/mean.
+
+# Observing system
+# ----------------
+observations:
+  observers:
+  - !INC sondes.yaml

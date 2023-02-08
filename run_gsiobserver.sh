@@ -79,11 +79,11 @@ if [ -z $biascorrdir ]; then # cycled bias correction files
     export GBIASAIR=${datapathm1}/${PREINPm1}abias_air
     export ABIAS=${datapath2}/${PREINP}abias
 else # externally specified bias correction files.
-    if [ -s ${biascorrdir}/${analdate}//${PREINP}abias ]; then
-    export GBIAS=${biascorrdir}/${analdate}//${PREINP}abias
-    export GBIAS_PC=${biascorrdir}/${analdate}//${PREINP}abias_pc
-    export GBIASAIR=${biascorrdir}/${analdate}//${PREINP}abias_air
-    export ABIAS=${biascorrdir}/${analdate}//${PREINP}abias
+    if [ -s ${biascorrdir}/${analdate}/${PREINP}abias ]; then
+    export GBIAS=${biascorrdir}/${analdate}/${PREINP}abias
+    export GBIAS_PC=${biascorrdir}/${analdate}/${PREINP}abias_pc
+    export GBIASAIR=${biascorrdir}/${analdate}/${PREINP}abias_air
+    export ABIAS=${biascorrdir}/${analdate}/${PREINP}abias
     else
     export GBIAS=${biascorrdir}/abias
     export GBIAS_PC=${biascorrdir}/abias_pc

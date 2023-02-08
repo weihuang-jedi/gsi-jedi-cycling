@@ -92,7 +92,7 @@ module list
 #echo "env"
 #env
 
-/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/gen_ensmean.sh ${run_dir}
+${enkfscripts}/gen_ensmean.sh ${run_dir}
 
 rm -rf analysis hofx obsout stdoutNerr observer solver
 mkdir -p analysis/mean analysis/increment hofx obsout solver
@@ -123,7 +123,7 @@ nodes=6
 NUMMEM=80
 MYLAYOUT="8,5"
 backgrounddatetime=${year}-${month}-${day}T${hour}:00:00Z
-windowdatetime=`python ${enkfscripts}/setjedistartdate.py --year=${year} --month=${month} --day=${day} --hour=${hour} --intv=3`
+windowdatetime=`python ${enkfscripts}/python_scripts/setjedistartdate.py --year=${year} --month=${month} --day=${day} --hour=${hour} --intv=3`
 echo "windowdatetime=$windowdatetime"
 yyyymmddhh=${year}${month}${day}${hour}
 
@@ -195,7 +195,9 @@ env
  number_members=81
  for var in sondes_tsen sondes_tv sondes_q sondes_uv
  do
-   time python /work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/concanate-using-gsi-omb.py \
+  #time python ${enkfscripts}/python_scripts/concanate-using-gsi-omb.py \
+  
+   time python ${enkfscripts}/python_scripts/concanate-observer.py \
       --run_dir=${run_dir} \
       --datestr=${yyyymmddhh} \
       --nmem=${number_members} \
