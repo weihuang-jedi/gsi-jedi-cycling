@@ -11,11 +11,12 @@ from pygw.yaml_file import YAMLFile
 #=========================================================================
 class GenerateYAML():
   def __init__(self, debug=0, config_file='config.yaml', solver='getkf.yaml.template.solver',
-               observer='getkf.yaml.template.rr.observer', numensmem=80):
+               observer='getkf.yaml.template.rr.observer', numensmem=80, obsdir='obsout'):
     self.debug = debug
     self.solver = solver
     self.observer = observer
     self.numensmem = numensmem
+    self.obsdir = obsdir
 
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
    #open YAML file to get config
@@ -44,10 +45,13 @@ class GenerateYAML():
 
   def genObserverYAML(self):
     os.system('cp rr.distribution distribution.yaml')
-    n = 0
 
+    if not os.path.exists(self.obsdir):
+      os.makedirs(self.obsdir)
+
+    n = 0
     while (n <= self.numensmem):
-      yaml_out = 'getkf.yaml.observer.mem%3.3d' %(n)
+      yaml_out = '%s/getkf.yaml.observer.mem%3.3d' %(self.obsdir, n)
       if(self.debug):
         print('YAML %d: %s' %(n, yaml_out))
 
@@ -78,10 +82,11 @@ if __name__== '__main__':
   observer = 'getkf.yaml.template.rr.observer'
   solver = 'getkf.yaml.template.solver'
   numensmem = 80
+  obsdir = 'obsout'
 
  #--------------------------------------------------------------------------------
   opts, args = getopt.getopt(sys.argv[1:], '', ['debug=', 'config=', 'observer=',
-                                                'solver=', 'numensmem='])
+                                                'solver=', 'numensmem=', 'obsdir='])
   print('opts = ', opts)
   print('args = ', args)
 
@@ -98,6 +103,8 @@ if __name__== '__main__':
       solver = a
     elif o in ('--numensmem'):
       numensmem = int(a)
+    elif o in ('--obsdir'):
+      obsdir = a
     else:
       print('o: <%s>' %(o))
       print('a: <%s>' %(a))
@@ -105,7 +112,7 @@ if __name__== '__main__':
 
  #--------------------------------------------------------------------------------
   gy = GenerateYAML(debug=debug, config_file=config_file, solver=solver,
-                    observer=observer, numensmem=numensmem)
+                    observer=observer, numensmem=numensmem, obsdir=obsdir)
 
   gy.genSolverYAML()
   gy.genObserverYAML()

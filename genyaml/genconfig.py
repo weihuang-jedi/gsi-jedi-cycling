@@ -37,10 +37,10 @@ class GenerateConfig():
 
     return ts
 
-  def genYAML(self):
+  def genYAML(self, intval=3):
     yaml_file = YAMLFile(path=self.yaml_in)
     print('yaml_file = ', yaml_file)
-    yaml_file['executable options']['ATM_WINDOW_BEGIN'] = self.advancedate(-3)
+    yaml_file['executable options']['ATM_WINDOW_BEGIN'] = self.advancedate(-intval)
     yaml_file['executable options']['BKG_ISOTIME'] = self.advancedate(0)
     yaml_file['executable options']['YYYYMMDDHH'] = self.ymdh
     yaml_file.save(self.yaml_out)
@@ -53,7 +53,7 @@ if __name__== '__main__':
   month = 1
   day = 2
   hour = 0
-  intv = 6
+  intv = 3
 
   opts, args = getopt.getopt(sys.argv[1:], '', ['debug=', 'template=', 'year=', 'month=',
                                                 'day=', 'hour=', 'intv='])
@@ -79,6 +79,6 @@ if __name__== '__main__':
   gc = GenerateConfig(debug=debug, template=template,
                       year=year, month=month, day=day, hour=hour)
   gc.genYAML()
-  tstr = gc.advancedate(intv)
+  tstr = gc.advancedate(-intv)
   print(tstr)
 
