@@ -2,15 +2,16 @@
 
  set -x
 
- export layout_x=3
- export layout_y=2
+ export layout="[3, 2]"
  export NMEM_ENKF=80
- export CDATE=2020011612
 
-#python genyaml.py \
-#  --config=config.yaml \
-#  --in=lgetkf.yaml \
-#  --out=new_lgetkf.yaml
+ python genconfig.py \
+   --template=config.template \
+   --year=2020 \
+   --month=1 \
+   --day=16 \
+   --hour=12 \
+   --intv=-6
 
  python genyaml.py \
    --config=config.yaml \

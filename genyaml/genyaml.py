@@ -68,8 +68,6 @@ class GenerateYAML():
 
     self.config['OBSINFILE'] = 'observer/sondes_%s.nc4' %(self.config['YYYYMMDDHH'])
     self.config['OBSOUTFILE'] = 'solver/sondes_%s.nc4' %(self.config['YYYYMMDDHH'])
-    self.config['MEMBERDATAPATH'] = 'mem%3.3d/INPUT' %(n)
-    self.config['MEMSTR'] = 'mem%3.3d' %(n)
 
     self.genYAML(self.config, self.solver, yaml_out)
 
@@ -81,6 +79,7 @@ if __name__== '__main__':
   solver = 'getkf.yaml.template.solver'
   numensmem = 80
 
+ #--------------------------------------------------------------------------------
   opts, args = getopt.getopt(sys.argv[1:], '', ['debug=', 'config=', 'observer=',
                                                 'solver=', 'numensmem='])
   print('opts = ', opts)
@@ -97,16 +96,14 @@ if __name__== '__main__':
       observer = a
     elif o in ('--solver'):
       solver = a
-    if o in ('--numensmem'):
+    elif o in ('--numensmem'):
       numensmem = int(a)
     else:
       print('o: <%s>' %(o))
       print('a: <%s>' %(a))
       assert False, 'unhandled option'
 
- #genYAML(debug, config_file, yaml_in, yaml_out)
- #genObsYAML(debug, config_file, yaml_in, 80)
-
+ #--------------------------------------------------------------------------------
   gy = GenerateYAML(debug=debug, config_file=config_file, solver=solver,
                     observer=observer, numensmem=numensmem)
 

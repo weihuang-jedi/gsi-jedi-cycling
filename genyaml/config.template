@@ -8,18 +8,16 @@ executable options:
   obs_list: /work2/noaa/da/weihuang/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
   gdas_fix_root: /work2/noaa/da/cmartin/GDASApp/fix
   atm: true
-  layout:
-  - 3
-  - 2
+  layout: [3, 2]
   case: C96
   npx_ges: 97
   npy_ges: 97
   npz_ges: 127
-  ATM_WINDOW_BEGIN: '2020-01-16T09:00:00Z'
+  ATM_WINDOW_BEGIN: 2020-01-16T09:00:00Z
   ATM_WINDOW_LENGTH: PT6H
-  BKG_ISOTIME: '2020-01-16T12:00:00Z'
+  BKG_ISOTIME: 2020-01-16T12:00:00Z
   NMEM_ENKF: 80
-  YYYYMMDDHH: '2020011612'
+  YYYYMMDDHH: 2020011612
   interp_method: barycentric
 job options:
   machine: orion
