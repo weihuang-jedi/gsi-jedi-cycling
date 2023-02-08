@@ -26,7 +26,7 @@ export beta=1000 # percentage of enkf increment (*10)
 # in this case, to recenter around EnVar analysis set recenter_control_wgt=100
 export recenter_control_wgt=100
 export recenter_ensmean_wgt=`expr 100 - $recenter_control_wgt`
-export exptname="gdas-cycling-run-dir"
+export exptname="gdas-cycling"
 # for 'passive' or 'replay' cycling of control fcst 
 export replay_controlfcst='false'
 export enkfonly='true' # pure EnKF
@@ -39,7 +39,6 @@ export rungfs='run_fv3.sh' # ensemble forecast
 #export jedirun='false'
 export jedirun='true'
 export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
-export jeditemplatedir=/work2/noaa/da/weihuang/cycling/gdas-cycling-scripts/templates.gdas
 export jediblddir=/work2/noaa/da/weihuang/GDASApp/build
 
 #export do_cleanup='true' # if true, create tar files, delete *mem* files.
@@ -110,8 +109,6 @@ if [ "$machine" == 'hera' ]; then
    module load wgrib
    export WGRIB=`which wgrib`
 elif [ "$machine" == 'orion' ]; then
-  #export basedir=/work2/noaa/gsienkf/${USER}
-  #export basedir=/work2/noaa/gsienkf/weihuang/gsi
    export basedir=/work2/noaa/da/weihuang/cycling
    export datadir=$basedir
    export hsidir="/ESRL/BMC/gsienkf/2year/whitaker/${exptname}"
@@ -409,9 +406,11 @@ export nanals2=-1 # longer extension. Set to -1 to disable
 #export nanals2=$NODES
 #export nanals2=$nanals
 export nitermax=1 # number of retries
-export enkfscripts="${basedir}/${exptname}"
+export enkfscripts=${basedir}/scripts/${exptname}
 export homedir=$enkfscripts
 export incdate="${enkfscripts}/incdate.sh"
+
+echo "enkfscripts=$enkfscripts"
 
 if [ "$machine" == 'hera' ]; then
    export FIXDIR=/scratch1/NCEPDEV/nems/emc.nemspara/RT/NEMSfv3gfs/input-data-20220414
@@ -523,5 +522,6 @@ else
       export readin_beta=.false.
       export readin_localization=.false.
    fi
+   pwd
    sh ./main.sh
 fi

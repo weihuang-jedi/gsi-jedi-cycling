@@ -1,0 +1,77 @@
+####################################################
+
+LN      =       ln -sf
+MAKE    =       make -i -r
+RM      =       /bin/rm -f
+MV      =       /bin/mv -f
+CP      =       /bin/cp -f
+AR      =       ar ru
+M4      =       m4 -B12000
+RANLIB	=       echo
+
+.SUFFIXES: .F90 .f90 .o .f .c .cc
+
+####################################################
+#NETCDFPATH      =       /work/noaa/da/jedipara/opt/modules/intel-2020.2/impi-2020.2/netcdf/4.7.4
+#HDF5PATH        =       /work/noaa/da/jedipara/opt/modules/intel-2020.2/impi-2020.2/hdf5/1.12.0
+
+#NETCDF_C_PATH    =       /work/noaa/da/role-da/spack-stack/spack-stack-v1/envs/skylab-3.0.0-gnu-10.2.0/install/gcc/10.2.0/netcdf-c-4.8.1-2xeea5h
+#NETCDF_F_PATH    =       /work/noaa/da/role-da/spack-stack/spack-stack-v1/envs/skylab-3.0.0-gnu-10.2.0/install/gcc/10.2.0/netcdf-fortran-4.5.4-ufstnkb
+#HDF5PATH        =       /work/noaa/da/role-da/spack-stack/spack-stack-v1/envs/skylab-3.0.0-gnu-10.2.0/install/gcc/10.2.0/hdf5-1.12.1-az32o4w
+
+NETCDF_C_PATH    =       /work/noaa/da/role-da/spack-stack/spack-stack-v1/envs/skylab-2.0.0-intel-2022.0.2/install/intel/2022.0.2/netcdf-c-4.8.1-xycuozc
+NETCDF_F_PATH    =       /work/noaa/da/role-da/spack-stack/spack-stack-v1/envs/skylab-2.0.0-intel-2022.0.2/install/intel/2022.0.2/netcdf-fortran-4.5.4-zutmubx
+HDF5PATH        =       /work/noaa/da/role-da/spack-stack/spack-stack-v1/envs/skylab-2.0.0-intel-2022.0.2/install/intel/2022.0.2/hdf5-1.12.1-3sndhtn
+
+#NETCDF_C_PATH    =      ${netcdf_c_ROOT}
+#NETCDF_F_PATH    =      ${netcdf_fortran_ROOT}
+#HDF5PATH        =       ${hdf5_ROOT}
+
+####################################################
+
+NETCDF_LIB      =       -L$(NETCDF_C_PATH)/lib -lnetcdf -L$(NETCDF_F_PATH)/lib -lnetcdff
+HDF5_LIB        =       -L$(HDF5PATH)/lib -lhdf5_hl -lhdf5
+
+DEBUGFLAGS	=	 
+UNDERSCORE	=	-DUNDERSCORE 
+
+FC_INCLUDES	=	-I. -I$(NETCDF_F_PATH)/include 
+FC_COMPILE_OPTIONS = 	-DUSE_GNU -cpp #-fdefault-real-8
+
+FC_OPTIMIZATIONS =	-g # -O3 
+
+####################################################
+
+FC		=       mpiifort
+FFLAGS		=       $(FC_US_FLAGS) $(FC_INCLUDES) $(FC_COMPILE_OPTIONS) $(FC_OPTIMIZATIONS) -traceback
+#FC		=       mpif90
+#FFLAGS		=       $(FC_US_FLAGS) $(FC_INCLUDES) $(FC_COMPILE_OPTIONS) $(FC_OPTIMIZATIONS)
+
+LDFLAGS		=       #-L/usr/lib64 -ltcmalloc /usr/lib64/libpsm2.so.2
+
+CPP		=       /usr/bin/cpp -C -P 
+CPPFLAGS	=	-I. $(DEBUGFLAGS)
+
+LOC_LIBS	=	$(NETCDF_LIB) $(HDF5_LIB) -lm -lc $(LDFLAGS)
+
+RANLIB		=	ranlib
+####################################################
+
+#There is probably no reason to modify these rules
+
+.F90.o:
+	$(RM) $*.o $*.f90
+	$(FC) -c $(FFLAGS) $*.F90
+
+#.F90.o:
+#	$(RM) $*.o $*.f90
+#	$(CPP) $(CPPFLAGS) $*.F90  > $*.f90
+#	$(FC) -c $(FFLAGS) $*.f90
+#
+#.F90.f90:
+#	$(RM) $*.f90
+#	$(CPP) $(CPPFLAGS) $*.F90 > $*.f90
+#
+#.f.o:
+#	$(RM) $*.o
+#	$(FC) -c $(FFLAGS) $*.f

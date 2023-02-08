@@ -11,7 +11,7 @@ from pygw.yaml_file import YAMLFile
 #=========================================================================
 class GenerateYAML():
   def __init__(self, debug=0, config_file='config.yaml', solver='getkf.yaml.template.solver',
-               observer='getkf.yaml.template.rr.observer', numensmem=80, obsdir='obsout'):
+               observer='getkf.yaml.template.rr.observer', numensmem=80, obsdir='observer'):
     self.debug = debug
     self.solver = solver
     self.observer = observer
@@ -56,7 +56,7 @@ class GenerateYAML():
         print('YAML %d: %s' %(n, yaml_out))
 
       self.config['OBSINFILE'] = 'ioda_v2_data/sondes_%s.nc4' %(self.config['YYYYMMDDHH'])
-      self.config['OBSOUTFILE'] = 'obsout/mem%3.3d/sondes_%s.nc4' %(n, self.config['YYYYMMDDHH'])
+      self.config['OBSOUTFILE'] = '%s/mem%3.3d/sondes_%s.nc4' %(self.obsdir, n, self.config['YYYYMMDDHH'])
       self.config['MEMBERDATAPATH'] = 'mem%3.3d/INPUT' %(n)
       self.config['MEMSTR'] = 'mem%3.3d' %(n)
 
@@ -70,7 +70,7 @@ class GenerateYAML():
     if(self.debug):
       print('YAML: %s' %(yaml_out))
 
-    self.config['OBSINFILE'] = 'observer/sondes_%s.nc4' %(self.config['YYYYMMDDHH'])
+    self.config['OBSINFILE'] = '%s/sondes_%s.nc4' %(self.obsdir, self.config['YYYYMMDDHH'])
     self.config['OBSOUTFILE'] = 'solver/sondes_%s.nc4' %(self.config['YYYYMMDDHH'])
 
     self.genYAML(self.config, self.solver, yaml_out)
@@ -82,7 +82,7 @@ if __name__== '__main__':
   observer = 'getkf.yaml.template.rr.observer'
   solver = 'getkf.yaml.template.solver'
   numensmem = 80
-  obsdir = 'obsout'
+  obsdir = 'observer'
 
  #--------------------------------------------------------------------------------
   opts, args = getopt.getopt(sys.argv[1:], '', ['debug=', 'config=', 'observer=',

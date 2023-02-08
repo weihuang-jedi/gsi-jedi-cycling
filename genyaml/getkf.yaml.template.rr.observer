@@ -5,7 +5,9 @@ geometry:
     namelist filename: Data/fv3files/fmsmpp.nml
     field table filename: Data/fv3files/field_table
   akbk: Data/fv3files/akbk127.nc4
-  layout: !ENV ${layout}
+  layout:
+  - !ENV ${observer_layout_x}
+  - !ENV ${observer_layout_y}
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
@@ -18,7 +20,7 @@ background:
   date: '$(BKG_ISOTIME)'
   members from template:
     pattern: '%mem%'
-    nmembers: $(NMEM_ENKF)
+    nmembers: 1
     zero padding: 3
     template:
       datetime: $(BKG_ISOTIME)
@@ -30,6 +32,18 @@ background:
       filename_cplr: coupler.res
       filetype: fms restart
       state variables: [ua, va, t, DZ, delp, phis, sphum, o3mr]
+
+control member:
+  date: '$(BKG_ISOTIME)'
+  datetime: '$(BKG_ISOTIME)'
+  datapath: mem000/INPUT
+  filename_core: fv_core.res.nc
+  filename_trcr: fv_tracer.res.nc
+  filename_sfcd: sfc_data.nc
+  filename_sfcw: fv_srf_wnd.res.nc
+  filename_cplr: coupler.res
+  filetype: fms restart
+  state variables: [ua, va, t, DZ, delp, phis, sphum, o3mr]
 
 driver:
   read HX from disk: false

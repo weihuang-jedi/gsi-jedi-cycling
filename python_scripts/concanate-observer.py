@@ -189,13 +189,13 @@ def replace_var(filelist, outfile, grplist):
 debug = 1
 nmem = 81
 
-run_dir = '/work2/noaa/gsienkf/weihuang/production/run/sondes/run_81.36t9n'
-datestr = '2020010112'
-varname = 'sondes_tsen'
+run_dir = '/work2/noaa/da/weihuang/cycling/gdas-cycling'
+datestr = '2020010106'
+obstype = 'sondes'
 
 #-----------------------------------------------------------------------------------------
 opts, args = getopt.getopt(sys.argv[1:], '', ['debug=', 'run_dir=',
-                                              'datestr=', 'varname=', 'nmem='])
+                                              'datestr=', 'obstype=', 'nmem='])
 for o, a in opts:
   if o in ('--debug'):
     debug = int(a)
@@ -203,8 +203,8 @@ for o, a in opts:
     run_dir = a
   elif o in ('--datestr'):
     datestr = a
-  elif o in ('--varname'):
-    varname = a
+  elif o in ('--obstype'):
+    obstype = a
   elif o in ('--nmem'):
     nmem = int(a)
   else:
@@ -214,9 +214,9 @@ for o, a in opts:
 grplist = ['hofx_y_mean_xb0', 'hofx0_1', 'ombg']
 filelist = []
 for n in range(nmem):
-  flnm = '%s/observer/mem%3.3d/%s_obs_%s_0000.nc4' %(run_dir, n, varname, datestr)
+  flnm = '%s/observer/mem%3.3d/%s_%s_0000.nc4' %(run_dir, n, obstype, datestr)
   filelist.append(flnm)
-outfile = '%s/observer/%s_obs_%s_0000.nc4' %(run_dir, varname, datestr)
+outfile = '%s/observer/%s_%s_0000.nc4' %(run_dir, obstype, datestr)
 
 replace_var(filelist, outfile, grplist)
 

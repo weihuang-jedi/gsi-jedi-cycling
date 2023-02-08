@@ -1,0 +1,16 @@
+&control_param
+ generate_weights = .true.
+ gaussian_grid_file = "gaussian_grid.nc4"
+ output_flnm = "latlon_weights.nc4"
+ wgt_flnm = "latlon_weights.nc4"
+ dirname = "/work/noaa/gsienkf/weihuang/UFS-RNR-tools/JEDI.FV3-increments/grid/C96/"
+ use_gaussian_grid = .false.
+ nlon = 384
+ nlat = 192
+ nlev = 127
+ nilev = 128
+ npnt = 4
+ num_types = 1
+ data_types = "C96_grid_spec.tile"
+/
+

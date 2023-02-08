@@ -16,7 +16,7 @@ obs space:
       obsfile: $(OBSOUTFILE)
   io pool:
     max pool size: 1
-  simulated variables: [surface_pressure, air_temperature, eastward_wind, northward_wind, specific_humidity]
+  simulated variables: [air_temperature, eastward_wind, northward_wind, specific_humidity]
 obs operator:
   name: Composite
   components:
@@ -26,12 +26,6 @@ obs operator:
      - name: eastward_wind
      - name: northward_wind
      - name: specific_humidity
-   - name: SfcPCorrected
-     da_psfc_scheme: GSI
-     geovar_sfc_geomz: surface_geopotential_height
-     geovar_geomz: geopotential_height
-     variables: 
-     - name: surface_pressure
 linear obs operator:
   name: Composite
   components:
@@ -41,9 +35,6 @@ linear obs operator:
      - name: eastward_wind
      - name: northward_wind
      - name: specific_humidity
-   - name: Identity
-     variables:
-     - name: surface_pressure
 obs filters:
   #
   # Reject all obs with PreQC mark already set above 3
@@ -51,56 +42,7 @@ obs filters:
     maxvalue: 3.0
     action:
       name: reject
-  #
-  # Observation Range Sanity Check
-  - filter: Bounds Check
-    filter variables:
-    - name: surface_pressure
-    minvalue: 37499.0
-    maxvalue: 106999.0
-    action:
-      name: reject
-  #
-  # Assign obsError
-  - filter: Perform Action
-    filter variables:
-    - name: surface_pressure
-    action:
-      name: assign error
-      error parameter: 100.0     # 1.0 hPa
-  #
-  # Assign the initial observation error, based on height/pressure
-  - filter: Perform Action
-    filter variables:
-    - name: surface_pressure
-    action:
-      name: assign error
-      error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
-        options:
-          xvar:
-            name: ObsValue/surface_pressure
-          xvals: [80000.0, 75000.0]
-          errors: [110.0, 120.0]        # 1.1 mb below 800 mb and 1.2 mb agove 750 mb
-  #
-  - filter: Perform Action
-    filter variables:
-    - name: surface_pressure
-    action:
-      name: inflate error
-      inflation variable:
-        name: ObsErrorFactorSfcPressure@ObsFunction
-        options:
-          error_min: 100.0         # 1 mb
-          error_max: 300.0         # 3 mb
-          geovar_geomz: geopotential_height
-          geovar_sfc_geomz: surface_geopotential_height
-  #
-  # Gross error check with (O - B) / ObsError greater than threshold
-  - filter: Background Check
-    filter variables:
-    - name: surface_pressure
-    threshold: 3.6
-    absolute threshold: 990.0
-    action:
-      name: reject
+obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000
