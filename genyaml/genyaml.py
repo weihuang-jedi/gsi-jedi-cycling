@@ -70,7 +70,7 @@ class GenerateYAML():
     if(self.debug):
       print('YAML: %s' %(yaml_out))
 
-    self.config['OBSINFILE'] = '%s/sondes_%s.nc4' %(self.obsdir, self.config['YYYYMMDDHH'])
+    self.config['OBSINFILE'] = '%s/sondes_%s_0000.nc4' %(self.obsdir, self.config['YYYYMMDDHH'])
     self.config['OBSOUTFILE'] = 'solver/sondes_%s.nc4' %(self.config['YYYYMMDDHH'])
 
     self.genYAML(self.config, self.solver, yaml_out)
