@@ -1,0 +1,27 @@
+#source $MODULESHOME/init/sh
+ module purge
+ module use /work2/noaa/da/weihuang/GDASApp/modulefiles
+ module load GDAS/orion
+ module load slurm
+
+#module list
+
+#export FC=ifort
+#export CC=icc
+#export CXX=icpc
+
+#export SERIAL_FC=FC
+#export SERIAL_CC=CC
+#export SERIAL_CXX=CXX
+
+#export MPI_FC=mpiifort
+#export MPI_CC=mpiicc
+#export MPI_CXX=mpiicpc
+
+ export PYTHONPATH=/work2/noaa/da/python/opt/core/miniconda3/4.6.14/envs/gdasapp/lib/python3.7/site-package:$PYTHONPATH
+
+#ioda-bundle build dir:
+ export jediblddir=/work2/noaa/da/weihuang/GDASApp/build
+ export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
+ export PYTHONPATH=${jediblddir}/lib/python3.7/pyioda:$PYTHONPATH
+

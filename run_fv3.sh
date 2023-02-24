@@ -105,16 +105,16 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 /bin/rm -f dyn* phy* *nemsio* PET*
-export DIAG_TABLE=${DIAG_TABLE:-$enkfscripts/diag_table}
+export DIAG_TABLE=${DIAG_TABLE:-$enkfscripts/textdata/diag_table}
 /bin/cp -f $DIAG_TABLE diag_table
 /bin/cp -f $enkfscripts/nems.configure .
 /bin/cp -f $enkfscripts/fd_nems.yaml .
 # insert correct starting time and output interval in diag_table template.
 sed -i -e "s/YYYY MM DD HH/${year} ${mon} ${day} ${hour}/g" diag_table
 sed -i -e "s/FHOUT/${RESTART_FREQ}/g" diag_table
-/bin/cp -f $enkfscripts/field_table_${SUITE} field_table
-/bin/cp -f ${enkfscripts}/${SUITE}.nml input.nml
-/bin/cp -f $enkfscripts/data_table . 
+/bin/cp -f $enkfscripts/textdata/field_table_${SUITE} field_table
+/bin/cp -f ${enkfscripts}/textdata/${SUITE}.nml input.nml
+/bin/cp -f $enkfscripts/textdata/data_table . 
 /bin/rm -rf RESTART
 mkdir -p RESTART
 mkdir -p INPUT

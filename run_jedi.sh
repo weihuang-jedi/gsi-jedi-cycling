@@ -17,12 +17,12 @@ export year=`echo $analdate |cut -c 1-4`
 export month=`echo $analdate |cut -c 5-6`
 export day=`echo $analdate |cut -c 7-8`
 export hour=`echo $analdate |cut -c 9-10`
+yyyymmddhh=${year}${month}${day}${hour}
 
 #input file fir.
 run_dir=${datapath}/${analdate}
 
-#source ~/jediprodenv
-source ~/gnuprodenv
+source ~/gdasenv
 executable=${jediblddir}/bin/fv3jedi_letkf.x
 ulimit -s unlimited
 
@@ -42,6 +42,14 @@ module list
 
 python ${iodablddir}/bin/proc_gsi_ncdiag.py \
        -o ioda_v2_data diag
+
+cd ioda_v2_data
+flst=`ls sondes_*_obs_${yyyymmddhh}.nc4`
+
+python ${iodablddir}/bin/combine_obsspace.py \
+  -i ${flst} -o sondes_${yyyymmddhh}.nc4
+
+cd ..
 
 echo "ls ioda_v2_data"
 ls ioda_v2_data
@@ -67,7 +75,7 @@ echo "cd ${ensdatadir}" >> ${run_dir}/logs/run_jedi.out
      -e "s?EHOUR?${hour}?g" \
      -e "s?EMINUTE?${minute}?g" \
      -e "s?ESECOND?${second}?g" \
-     ${jeditemplatedir}/coupler.res.template > coupler.res
+     ${enkfscripts}/genyaml/coupler.res.template > coupler.res
 
 for dir in crtm \
    fieldmetadata \
@@ -92,90 +100,72 @@ module list
 #echo "env"
 #env
 
-/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/gen_ensmean.sh ${run_dir}
-
-rm -rf analysis hofx obsout stdoutNerr observer solver
-mkdir -p analysis/mean analysis/increment hofx obsout solver
-
-number_members=80
-n=0
-while [ $n -le $number_members ]
-do
-   if [ $n -lt 10 ]
-   then
-      member_str=mem00${n}
-   elif [ $n -lt 100 ]
-   then
-      member_str=mem0${n}
-   else
-      member_str=mem${n}
-   fi
-
-   cp ${ensdatadir}/coupler.res ${member_str}/INPUT/.
-   mkdir -p analysis/increment/${member_str}
-
-   n=$(( $n + 1 ))
-done
+${enkfscripts}/gen_ensmean.sh ${run_dir}
 
 echo "cd ${run_dir}" >> ${run_dir}/logs/run_jedi.out
+cd ${run_dir}
 
-nodes=6
-NUMMEM=80
-MYLAYOUT="8,5"
-backgrounddatetime=${year}-${month}-${day}T${hour}:00:00Z
-windowdatetime=`python ${enkfscripts}/setjedistartdate.py --year=${year} --month=${month} --day=${day} --hour=${hour} --intv=3`
-echo "windowdatetime=$windowdatetime"
-yyyymmddhh=${year}${month}${day}${hour}
+#--------------------------------------------------------------------------------------------
+ cp ${enkfscripts}/genyaml/config.template .
+ cp ${enkfscripts}/genyaml/sondes.yaml .
+ cp ${enkfscripts}/genyaml/halo.distribution .
+ cp ${enkfscripts}/genyaml/rr.distribution .
+
+ export corespernode=40
+ export mpitaskspernode=40
+ count=1
+ export OMP_NUM_THREADS=1
+
+ NODES=$SLURM_NNODES
+
+ export observer_layout_x=3
+ export observer_layout_y=2
+ export solver_layout_x=8
+ export solver_layout_y=5
+ export NMEM_ENKF=80
+
+ python ${enkfscripts}/genyaml/genconfig.py \
+   --template=config.template \
+   --year=${year} \
+   --month=${month} \
+   --day=${day} \
+   --hour=${hour} \
+   --intv=3
+
+ python ${enkfscripts}/genyaml/genyaml.py \
+   --config=config.yaml \
+   --observer=${enkfscripts}/genyaml/getkf.yaml.template.rr.observer \
+   --solver=${enkfscripts}/genyaml/getkf.yaml.template.solver \
+   --numensmem=${NMEM_ENKF} \
+   --obsdir=observer
 
 #--------------------------------------------------------------------------------------------
  export OOPS_DEBUG=-11
  export OOPS_TRACK=-11
 #export OOPS_TRACE=1
 
-export OMP_NUM_THREADS=1
-export corespernode=40
-export mpitaskspernode=40
-count=1
-
  echo "run observer"
- obstype=sondes
- MYLAYOUT="3,2"
- NODES=$SLURM_NNODES
 
- number_members=80
- n=0
- while [ $n -le $number_members ]
- do
+ rm -rf analysis hofx stdoutNerr solver
+ mkdir -p analysis/mean analysis/increment hofx solver
+
+number_members=${NMEM_ENKF}
+n=0
+while [ $n -le $number_members ]
+do
    used_nodes=0
    while [ $used_nodes -lt $NODES ] && [ $n -le $number_members ]
    do
      used_nodes=$(( $used_nodes + 1 ))
 
-     if [ $n -lt 10 ]
-     then
-       member_str=mem00${n}
-     elif [ $n -lt 100 ]
-     then
-       member_str=mem0${n}
-     else
-       member_str=mem${n}
-     fi
-
+     zeropadmem=`printf %03d $n`
+     member_str=mem${zeropadmem}
+     cp ${ensdatadir}/coupler.res ${member_str}/INPUT/.
      mkdir -p analysis/increment/${member_str}
-     mkdir -p obsout/${member_str}
+     mkdir -p observer/${member_str}
 
-sed -e "s?LAYOUT?${MYLAYOUT}?g" \
-    -e "s?MEMSTR?${member_str}?g" \
-    -e "s?WINDOWBEGINDATETIME?${windowdatetime}?g" \
-    -e "s?BACKGROUNDDATETIME?${backgrounddatetime}?g" \
-    ${jeditemplatedir}/getkf.yaml.template.1member.rr.observer > obsout/getkf.yaml.observer.${member_str}
-
-sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
-    -e "s?MEMSTR?${member_str}?g" \
-    ${jeditemplatedir}/${obstype}.obs.yaml.template.rr.observer >> obsout/getkf.yaml.observer.${member_str}
-
-     mkdir -p obsout/${member_str}
-     srun -N 1 -n 36 --ntasks-per-node=40 ${executable} obsout/getkf.yaml.observer.${member_str} >& obsout/log.${member_str} &
+     srun -N 1 -n 36 --ntasks-per-node=40 ${executable} \
+	observer/getkf.yaml.observer.${member_str} >& observer/log.${member_str} &
 
      n=$(( $n + 1 ))
    done
@@ -190,36 +180,17 @@ env
 
  echo "concanate observer"
  cd ${run_dir}
- mv obsout observer
+ obstype=sondes
 
  number_members=81
- for var in sondes_tsen sondes_tv sondes_q sondes_uv
- do
-  #time python /work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/concanate-using-gsi-omb.py \
-
-   time python /work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/concanate-observer.py \
+ time python ${enkfscripts}/python_scripts/concanate-observer.py \
       --run_dir=${run_dir} \
       --datestr=${yyyymmddhh} \
       --nmem=${number_members} \
-      --varname=${var} &
- done
-
- wait
+      --obstype=${obstype}
 
  echo "run solver"
  cd ${run_dir}
-
-#MYLAYOUT="10,6"
- MYLAYOUT="8,5"
- NUMMEM=80
-sed -e "s?LAYOUT?${MYLAYOUT}?g" \
-    -e "s?NUMBEROFMEMBERS?${NUMMEM}?g" \
-    -e "s?WINDOWBEGINDATETIME?${windowdatetime}?g" \
-    -e "s?BACKGROUNDDATETIME?${backgrounddatetime}?g" \
-    ${jeditemplatedir}/getkf.yaml.template.solver > getkf.solver.yaml
-
-sed -e "s?YYYYMMDDHH?${yyyymmddhh}?g" \
-    ${jeditemplatedir}/${obstype}.obs.yaml.template.solver >> getkf.solver.yaml
 
 export OMP_NUM_THREADS=1
 export corespernode=30
@@ -249,7 +220,7 @@ echo "srun: `which srun`" >> ${run_dir}/logs/run_jedi.out
 cd ${run_dir}
 echo "generate increments"
 
-interpsrcdir=/work2/noaa/gsienkf/weihuang/production/run/transform/interp_fv3cube2gaussian
+interpsrcdir=${enkfscripts}/interp_fv3cube2gaussian
 prefix=${year}${month}${day}.${hour}0000.
 
 workdir=${datapath}/${analdate}

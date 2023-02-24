@@ -522,7 +522,7 @@ wait # wait for backgrounded processes to finish
 
 # only save full ensemble data to hpss if checkdate.py returns 0
 # a subset will be saved if save_hpss_subset="true" and save_hpss="true"
-date_check=`python ${homedir}/checkdate.py ${analdate}`
+date_check=`python ${homedir}/python_scripts/checkdate.py ${analdate}`
 if [ $date_check -eq 0 ]; then
   export save_hpss_full="true"
 else
