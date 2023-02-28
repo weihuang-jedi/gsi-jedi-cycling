@@ -9,14 +9,14 @@
           type: H5File
           obsfile: ioda_v2_data/sondes_tsen_obs_YYYYMMDDHH.nc4
         obsgrouping:
-          group variables: ["station_id", "datetime"]
-          sort variable: "air_pressure"
+          group variables: ["stationIdentification", "dateTime"]
+          sort variable: "pressure"
           sort order: "descending"
       obsdataout:
         engine:
           type: H5File
           obsfile: obsout/MEMSTR/sondes_tsen_obs_YYYYMMDDHH.nc4
-      simulated variables: [air_temperature]
+      simulated variables: [airTemperature]
     obs operator:
       name: VertInterp
     obs error:
@@ -43,14 +43,14 @@
           type: H5File
           obsfile: ioda_v2_data/sondes_tv_obs_YYYYMMDDHH.nc4
         obsgrouping:
-          group variables: ["station_id", "datetime"]
-          sort variable: "air_pressure"
+          group variables: ["stationIdentification", "dateTime"]
+          sort variable: "pressure"
           sort order: "descending"
       obsdataout:
         engine:
           type: H5File
           obsfile: obsout/MEMSTR/sondes_tv_obs_YYYYMMDDHH.nc4
-      simulated variables: [virtual_temperature]
+      simulated variables: [virtualTemperature]
     obs operator:
       name: VertInterp
     obs error:
@@ -77,14 +77,14 @@
           type: H5File
           obsfile: ioda_v2_data/sondes_uv_obs_YYYYMMDDHH.nc4
         obsgrouping:
-          group variables: ["station_id", "datetime"]
-          sort variable: "air_pressure"
+          group variables: ["stationIdentification", "dateTime"]
+          sort variable: "pressure"
           sort order: "descending"
       obsdataout:
         engine:
           type: H5File
           obsfile: obsout/MEMSTR/sondes_uv_obs_YYYYMMDDHH.nc4
-      simulated variables: [eastward_wind, northward_wind]
+      simulated variables: [windEastward, windNorthward]
     obs operator:
       name: VertInterp
     obs error:
@@ -111,14 +111,14 @@
           type: H5File
           obsfile: ioda_v2_data/sondes_q_obs_YYYYMMDDHH.nc4
         obsgrouping:
-          group variables: ["station_id", "datetime"]
-          sort variable: "air_pressure"
+          group variables: ["stationIdentification", "dateTime"]
+          sort variable: "pressure"
           sort order: "descending"
       obsdataout:
         engine:
           type: H5File
           obsfile: obsout/MEMSTR/sondes_q_obs_YYYYMMDDHH.nc4
-      simulated variables: [specific_humidity]
+      simulated variables: [specificHumidity]
     obs operator:
       name: VertInterp
     obs error:

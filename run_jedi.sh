@@ -235,7 +235,7 @@ echo "srun: `which srun`" >> ${run_dir}/logs/run_jedi.out
 #srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode $executable getkf.solver.yaml
 #srun -n $nprocs $executable getkf.solver.yaml
  srun -N 6 -n 240 --ntasks-per-node=40 \
-        ${executable} getkf.solver.yaml
+        ${executable} getkf.solver.yaml log.solver.out
 
 #export blddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
 #export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH

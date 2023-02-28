@@ -214,9 +214,9 @@ for o, a in opts:
 grplist = ['hofx_y_mean_xb0', 'hofx0_1', 'ombg']
 filelist = []
 for n in range(nmem):
-  flnm = '%s/observer/mem%3.3d/%s_obs_%s_0000.nc4' %(run_dir, n, varname, datestr)
+  flnm = '%s/observer/mem%3.3d/%s_obs_%s.nc4' %(run_dir, n, varname, datestr)
   filelist.append(flnm)
-outfile = '%s/observer/%s_obs_%s_0000.nc4' %(run_dir, varname, datestr)
+outfile = '%s/observer/%s_obs_%s.nc4' %(run_dir, varname, datestr)
 
 replace_var(filelist, outfile, grplist)
 
