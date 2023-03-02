@@ -31,7 +31,7 @@ background:
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
       filetype: fms restart
-      state variables: [ua, va, t, DZ, delp, phis, sphum, o3mr]
+      state variables: [u, v, t, DZ, delp, phis, sphum, o3mr]
 
 control member:
   date: '$(BKG_ISOTIME)'
@@ -43,20 +43,21 @@ control member:
   filename_sfcw: fv_srf_wnd.res.nc
   filename_cplr: coupler.res
   filetype: fms restart
-  state variables: [ua, va, t, DZ, delp, phis, sphum, o3mr]
+  state variables: [u, v, t, DZ, delp, phis, sphum, o3mr]
 
 driver:
   read HX from disk: false
   do posterior observer: false
  #do test prints: true
   do test prints: false
-  save posterior mean: true
+  save posterior mean: false
   save posterior ensemble: false
   save prior mean: false
-  save posterior mean increment: true
-  save posterior ensemble increments: true
+  save posterior mean increment: false
+  save posterior ensemble increments: false
   update obs config with geometry info: false
   run as observer only: true
+  use control member: true
 
 local ensemble DA:
   solver: GETKF

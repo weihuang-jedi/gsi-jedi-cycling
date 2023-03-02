@@ -16,13 +16,14 @@ obs space:
       obsfile: $(OBSOUTFILE)
   io pool:
     max pool size: 1
-  simulated variables: [air_temperature, eastward_wind, northward_wind, specific_humidity]
+  simulated variables: [air_temperature, virtual_temperature, eastward_wind, northward_wind, specific_humidity]
 obs operator:
   name: Composite
   components:
    - name: VertInterp
      variables:
      - name: air_temperature
+     - name: virtual_temperature
      - name: eastward_wind
      - name: northward_wind
      - name: specific_humidity
@@ -32,6 +33,7 @@ linear obs operator:
    - name: VertInterp
      variables:
      - name: air_temperature
+     - name: virtual_temperature
      - name: eastward_wind
      - name: northward_wind
      - name: specific_humidity
@@ -39,7 +41,7 @@ obs filters:
   #
   # Reject all obs with PreQC mark already set above 3
   - filter: PreQC
-    maxvalue: 3.0
+    maxvalue: 3
     action:
       name: reject
 obs localizations:

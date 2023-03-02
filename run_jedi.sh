@@ -196,7 +196,6 @@ export OMP_NUM_THREADS=1
 export corespernode=30
 export mpitaskspernode=30
 #nprocs=360
-#totnodes=10
 totnodes=8
 MYLAYOUT="8,5"
 nprocs=240
@@ -206,16 +205,8 @@ nprocs=240
 echo "srun: `which srun`" >> ${run_dir}/logs/run_jedi.out
 
 #srun -N $totnodes -n $nprocs --ntasks-per-node=$mpitaskspernode $executable getkf.solver.yaml
-#srun -n $nprocs $executable getkf.solver.yaml
- srun -N 6 -n 240 --ntasks-per-node=40 \
-        ${executable} getkf.solver.yaml
-
-#export blddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
-#export LD_LIBRARY_PATH=${blddir}/lib:$LD_LIBRARY_PATH
-
-#srun -N 8 -n 240 --ntasks-per-node=30 \
-#       /work2/noaa/gsienkf/weihuang/production/build/fv3-bundle/bin/fv3jedi_letkf.x \
-#       getkf.solver.yaml
+ srun -N 8 -n 240 --ntasks-per-node=30 \
+        ${executable} getkf.solver.yaml log.solver.out
 
 cd ${run_dir}
 echo "generate increments"
