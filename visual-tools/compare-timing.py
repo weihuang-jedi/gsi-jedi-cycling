@@ -38,12 +38,14 @@ def advancedate(ints, intv):
 """ Profiler """
 class Profiler:
   """ Constructor """
-  def __init__(self, debug=0, firstfile=None, secondfile=None, output=0, linear=0,
-               casename='JEDI'):
+  def __init__(self, debug=0, firstdir=None, seconddir=None, output=0, linear=0,
+               casename='JEDI', sym1='sym1', sym2='sym2'):
     """ Initialize class attributes """
     self.debug = debug
-    self.firstfile = firstfile
-    self.secondfile = secondfile
+    self.firstdir = firstdir
+    self.seconddir = seconddir
+    self.sym1 = sym1
+    self.sym2 = sym2
     self.output = output
     self.linear = linear
     self.casename = casename
@@ -56,7 +58,6 @@ class Profiler:
 
     self.shortest_time = 0.1
 
-    self.filelist = [firstfile, secondfile]
     self.colorlist = ['red', 'green', 'cyan', 'blue', 'magenta',
                       'firebrick', 'lime']
     self.linestyle = ['solid', 'solid', 'solid', 'solid', 'solid',
@@ -75,18 +76,9 @@ class Profiler:
                              'oops::ObsVector',
                              'oops::ObsOperator',
                              'oops::VariableChange']
-    self.sumstats = {}
-    self.sumnames = {}
-    self.statstime = []
-    for i in range(len(self.sumfunction_list)):
-      tmax = np.zeros((len(self.filelist)), dtype=float)
-      for n in range(len(self.filelist)):
-        tmax[n] = 0.0
-      self.statstime.append(tmax)
-      stats = {}
-      stats['sum'] = tmax
-      self.sumstats[self.sumfunction_list[i]] = stats
-      self.sumnames[self.sumfunction_list[i]] = ['sum']
+    self.stats = {}
+    self.stats[sym1] = {}
+    self.stats[sym2] = {}
       
   def set_linear(self, linear=1):
     self.linear = linear
@@ -94,77 +86,105 @@ class Profiler:
   def set_output(self, output=1):
     self.output = output
 
-  def process(self):
-    for n in range(len(self.filelist)):
-      flnm = self.filelist[n]
-      if(os.path.exists(flnm)):
-        if(self.debug):
-          print('Processing file No. %d: file: %s' %(n, flnm))
-        pass
-      else:
-        print('Filename ' + flnm + ' does not exit. Stop')
-        sys.exit(-1)
+  def process(self, startdate='2020010100', enddate='2020010100', interval=6):
+    datestr = startdate
+    while (datestr != enddate):
+      firstfile = '%s/%s/log.solver.out' %(self.firstdir, datestr)
+      secondfile = '%s/%s/log.solver.out' %(self.seconddir, datestr)
 
-      with open(flnm) as fp:
-        lines = fp.readlines()
-       #line = fp.readline()
-        num_lines = len(lines)
-       #print('Total number of lines: ', num_lines)
+      self.stats[sym1][datestr] = self.process_file(firstfile)
+      self.stats[sym2][datestr] = self.process_file(secondfile)
+      datestr = advancedate(datestr, interval)
 
-        nl = 0
-        while(nl < num_lines):
-          if(lines[nl].find('Parallel Timing Statistics') > 0):
-           #if(self.debug):
-           #  print('lines[%d]: %s' %(nl, lines[nl]))
-            self.parallel_time_stats(n, lines, nl)
-            break
-          nl += 1
+  def process_file(self, flnm):
+    stats = {}
+    stats['file'] = flnm
+    if(os.path.exists(flnm)):
+      if(self.debug):
+        print('Processing file: %s' %(flnm))
+      pass
+    else:
+      print('Filename ' + flnm + ' does not exit. Stop')
+      sys.exit(-1)
+
+    object = 0
+    general = 0
+    parallel = 0
+
+    stats['object'] = {}
+    stats['general'] = {}
+    stats['parallel'] = {}
+    
+    with open(flnm) as fp:
+      lines = fp.readlines()
+     #line = fp.readline()
+      num_lines = len(lines)
+     #print('Total number of lines: ', num_lines)
+
+      nl = 0
+      while(nl < num_lines):
+        line = lines[nl]
+        nl += 1
+        if(line.find('OOPS_STATS ') < 0):
+          continue
+
+        print('Line %d: %s' %(nl, line))
+
+        if(line.find('- Object counts -') > 0):
+          object += 1
+          if(object > 1):
+            object = 0
+        if(line.find('- Timing Statistics -') > 0):
+          general += 1
+          if(general > 1):
+            general = 0
+        if(line.find('- Parallel Timing Statistics ') > 0):
+          parallel += 1
+          if(parallel > 1):
+            parallel = 0
+          
+        fstr = line[11:].strip()
+        print('\t%s' %(fstr))
+
+        if(fstr.find('::') > 0):
+          while(fstr.find('  ') > 0):
+            fstr = fstr.replace('  ', ' ')
+          if(general):
+            name, tvec = self.time_stats(fstr)
+            stats['general'][name] = tvec
+          elif(parallel):
+            name, tvec = self.parallel_time_stats(fstr)
+            stats['parallel'][name] = tvec
+          elif(object):
+            name, ivec = self.object_stats(fstr)
+            stats['object'][name] = ivec
+    return stats
   
-  def parallel_time_stats(self, n, lines, nl):
-    going = 1
-    ns = nl + 3
-    while(going):
-      line = lines[ns].strip()
-      ns += 1
-      if(line.find('Parallel Timing Statistics') > 0):
-        going = 0
-        break
+  def object_stats(self, tstr):
+    item = tstr.split(': ')
+   #print(item)
+    name = item[0].strip()
+    tlist = item[1].split(' ')
+    tvec = [int(tlist[0]), int(tlist[1])]
+    return name, tvec
 
-     #print('Line ' + str(ns) + ': ' + line)
+  def time_stats(self, tstr):
+    item = tstr.split(': ')
+   #print(item)
+    name = item[0].strip()
+    tlist = item[1].split(' ')
+    ivec = [float(tlist[0]), int(tlist[1])]
+    return name, ivec
 
-      item = line.split(': ')
-     #print(item)
-      nlist = item[0].strip().split(' ')
-      name = nlist[1]
-
-      tstr = item[1].strip()
-      while(tstr.find('  ') > 0):
-        tstr = tstr.replace('  ', ' ')
-      nlist = tstr.split(' ')
-      tmin = float(nlist[0])
-      tmax = float(nlist[1])
-      tavg = float(nlist[2])
-      
-      self.updatestats(n, name, tmax)
-
-    return ns
-
-  def updatestats(self, n, name, tmax):
-    for i in range(len(self.sumfunction_list)):
-      if(name.find(self.sumfunction_list[i]) >= 0):
-        self.statstime[i][n] += tmax
-        self.sumstats[self.sumfunction_list[i]]['sum'][n] += tmax
-
-        item = name.split('::')
-        pname = item[-1]
-        if(pname in self.sumstats[self.sumfunction_list[i]].keys()):
-          self.sumstats[self.sumfunction_list[i]][pname][n] += tmax
-        else:
-          tzero = np.zeros((len(self.filelist)), dtype=float)
-          self.sumstats[self.sumfunction_list[i]][pname] = tzero
-          self.sumstats[self.sumfunction_list[i]][pname][n] += tmax
-          self.sumnames[self.sumfunction_list[i]].append(pname)
-        return
+  def parallel_time_stats(self, tstr):
+    item = tstr.split(': ')
+   #print(item)
+    name = item[0].strip()
+    tlist = item[1].split(' ')
+    tvec = np.zeros((len(tlist)), dtype=float)
+    for n in range(len(tlist)):
+      tvec = float(tlist[n])
+    return name, tvec
 
   def plot(self):
     try:
@@ -484,9 +504,12 @@ if __name__== '__main__':
   linear = 1
   interval = 6
   casename = 'Sepreinit'
+  sym1 = 'SRIO'
+  sym2 = 'Orig'
 
   opts, args = getopt.getopt(sys.argv[1:], '', ['debug=', 'firstdir=', 'seconddir=',
                                                 'startdate=', 'enddate=', 'interval=',
+                                                'sym1=', 'sym2=',
                                                 'output=', 'linear=', 'casename='])
 
   for o, a in opts:
@@ -502,6 +525,10 @@ if __name__== '__main__':
       enddate = a
     elif o in ('--casename'):
       casename = a
+    elif o in ('--sym1'):
+      sym1 = a
+    elif o in ('--sym2'):
+      sym2 = a
     elif o in ('--interval'):
       interval = int(a)
     elif o in ('--output'):
@@ -511,18 +538,12 @@ if __name__== '__main__':
     else:
       assert False, 'unhandled option'
 
-  datestr = startdate
-  while (datestr != enddate):
-    firstfile = '%s/%s/log.solver.out' %(firstdir, datestr)
-    secondfile = '%s/%s/log.solver.out' %(seconddir, datestr)
-    pr = Profiler(debug=debug, firstfile=firstfile, secondfile=secondfile,
-                  output=output, linear=linear, casename=casename)
-    pr.process()
-    for linear in [0, 1]:
-      pr.set_linear(linear=linear)
-     #for output in [0, 1]:
-      for output in [1]:
-        pr.set_output(output=output)
-        pr.plot()
-    datestr = advancedate(datestr, interval)
+  pr = Profiler(debug=debug, firstdir=firstdir, seconddir=seconddir,
+                sym1=sym1, sym2=sym2,
+                output=output, linear=linear, casename=casename)
+ #pr.set_linear(linear=linear)
+ #pr.set_output(output=output)
+
+  pr.process(startdate=startdate, enddate=enddate, interval=interval)
+ #pr.plot()
 
