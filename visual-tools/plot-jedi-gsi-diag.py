@@ -325,10 +325,10 @@ class Plot_JEDI_GSI_Diag():
         self.cmapname = 'bwr'
        #self.clevs = np.arange(-2.0, 2.1, 0.1)
        #self.cblevs = np.arange(-2.0, 3.0, 1.0)
-       #self.clevs = np.arange(-0.5, 0.52, 0.02)
-       #self.cblevs = np.arange(-0.5, 0.6, 0.2)
-        self.clevs = np.arange(-0.1, 0.11, 0.01)
-        self.cblevs = np.arange(-0.1, 0.15, 0.05)
+        self.clevs = np.arange(-0.5, 0.52, 0.02)
+        self.cblevs = np.arange(-0.5, 0.6, 0.2)
+       #self.clevs = np.arange(-0.1, 0.11, 0.01)
+       #self.cblevs = np.arange(-0.1, 0.15, 0.05)
 
       xm, ym = np.meshgrid(x, y)
       cs=axs[i].contourf(xm, ym, pvar,

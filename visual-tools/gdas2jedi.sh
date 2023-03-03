@@ -2,7 +2,7 @@
 
  set -x
 
- edate=2020010306
+ edate=2020010206
 
  plot_stats () {
    argnum=$#
@@ -59,10 +59,10 @@
 #------------------------------------------------------------------------------
  firstlist=(feb8.jedi_C96_lgetkf_sondesonly)
 #firstlist=(jedi_C96_lgetkf_sondesonly)
-#secondlist=(gdas-cycling)
- secondlist=(jedi_C96_lgetkf_sondesonly)
- firstlbls=(JEDI1)
- secondlbls=(JEDI2)
+#secondlist=(jedi_C96_lgetkf_sondesonly)
+ secondlist=(gdas-cycling)
+ firstlbls=(JEDI)
+ secondlbls=(GDAS)
  for j in ${!firstlist[@]}
  do
    first=${firstlist[$j]}
