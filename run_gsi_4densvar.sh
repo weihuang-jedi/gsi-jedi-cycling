@@ -970,20 +970,21 @@ for loop in $loops; do
 done
 
 wait
+
 echo "Time after diagnostic loop is `date` "
 
-if [ ! -s $savdir/diag_conv_uv_ges.${adate}_${charnanal2}.nc4 ]; then
-   exit 1
-fi
-if [ ! -s $savdir/diag_conv_t_ges.${adate}_${charnanal2}.nc4 ]; then
-   exit 1
-fi
+#if [ ! -s $savdir/diag_conv_uv_ges.${adate}_${charnanal2}.nc4 ]; then
+#   exit 1
+#fi
+#if [ ! -s $savdir/diag_conv_t_ges.${adate}_${charnanal2}.nc4 ]; then
+#   exit 1
+#fi
 #if [ ! -s $savdir/diag_conv_q_ges.${adate}_${charnanal2}.nc4 ]; then
 #   exit 1
 #fi
-#if [ ! -s $savdir/diag_conv_ps_ges.${adate}_${charnanal2}.nc4 ]; then
-#   exit 1
-#fi
+if [ ! -s $savdir/diag_conv_ps_ges.${adate}_${charnanal2}.nc4 ]; then
+   exit 1
+fi
 
 fi # skipcat
 
