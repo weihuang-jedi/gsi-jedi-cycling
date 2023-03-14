@@ -2,7 +2,7 @@
 
  set -x
 
- edate=2020010306
+ edate=2020011118
 
  plot_stats () {
    argnum=$#

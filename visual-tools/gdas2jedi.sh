@@ -2,7 +2,7 @@
 
  set -x
 
- edate=2020010612
+ edate=2020011118
 
  plot_stats () {
    argnum=$#
@@ -57,9 +57,15 @@
 
  tar cvf ~/jg.tar plot-jedi-gsi-diag.py get_diag.sh
 #------------------------------------------------------------------------------
- firstlist=(feb8.jedi_C96_lgetkf_sondesonly)
+#firstlist=(feb8.jedi_C96_lgetkf_sondesonly)
+#firstlist=(sepreint.jedi_C96_lgetkf_sondesonly)
 #firstlist=(jedi_C96_lgetkf_sondesonly)
 #secondlist=(jedi_C96_lgetkf_sondesonly)
+#secondlist=(gdas-cycling)
+#firstlbls=(SRIO)
+#secondlbls=(JEDI)
+
+ firstlist=(jedi_C96_lgetkf_sondesonly)
  secondlist=(gdas-cycling)
  firstlbls=(JEDI)
  secondlbls=(GDAS)
