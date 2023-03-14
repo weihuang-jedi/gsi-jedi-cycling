@@ -409,7 +409,7 @@ export WRITE_STRAT_EFOLD="incvars_efold= $INCVARS_EFOLD,"
 export use_correlated_oberrs=".true."
 # NOTE: most other GSI namelist variables are in ${rungsi}
 
-export SMOOTHINF=35 # inflation smoothing (spectral truncation)
+export SMOOTHINF=-1 # inflation smoothing (spectral truncation)
 export covinflatemax=1.e2
 export reducedgrid=.false. # if T, used reduced gaussian analysis grid in EnKF
 export covinflatemin=1.0                                            
@@ -432,9 +432,9 @@ export getkf_inflation=.false.
 export modelspace_vloc=.true.
 export letkf_novlocal=.true.
 export nobsl_max=10000
-export corrlengthnh=2000
-export corrlengthtr=2000
-export corrlengthsh=2000
+export corrlengthnh=1250
+export corrlengthtr=1250
+export corrlengthsh=1250
 # The lnsigcutoff* parameters are ignored if modelspace_vloc=T
 export lnsigcutoffnh=1.5
 export lnsigcutofftr=1.5
@@ -535,8 +535,10 @@ fi
 #export ANAVINFO=${fixgsi}/global_anavinfo_allhydro.l${LEVS}.txt
 #export ANAVINFO=${fixgsi}/global_anavinfo.l${LEVS}.txt
 #export ANAVINFO=${enkfscripts}/global_anavinfo.l${LEVS}.txt.dpres
-export ANAVINFO=${enkfscripts}/global_anavinfo_enkf.l127.txt
-export ANAVINFO_ENKF=${ANAVINFO}
+#export ANAVINFO=${enkfscripts}/global_anavinfo_enkf.l127.txt
+#export ANAVINFO_ENKF=${ANAVINFO}
+export ANAVINFO=${fixgsi}/global_anavinfo.l${LEVS}.txt
+export ANAVINFO_ENKF=${enkfscripts}/global_anavinfo_enkf.l127.txt
 export HYBENSINFO=${fixgsi}/global_hybens_info.l${LEVS}.txt # only used if readin_beta or readin_localization=T
 #export HYBENSINFO=${enkfscripts}/global_hybens_info.l${LEVS}.txt # only used if readin_beta or readin_localization=T
 # comment out next line to disable smoothing of ensemble perturbations
