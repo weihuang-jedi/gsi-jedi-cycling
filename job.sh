@@ -5,9 +5,9 @@
 #SBATCH -N 20  
 #SBATCH --ntasks-per-node=40
 #SBATCH -p orion
-#SBATCH -J da_gsi_C96_lgetkf_sondesonly
-#SBATCH -e da_gsi_C96_lgetkf_sondesonly.err
-#SBATCH -o da_gsi_C96_lgetkf_sondesonly.out
+#SBATCH -J da_gsi_C96_lgetkf_psonly
+#SBATCH -e da_gsi_C96_lgetkf_psonly.err
+#SBATCH -o da_gsi_C96_lgetkf_psonly.out
 
 export NODES=$SLURM_NNODES
 export corespernode=$SLURM_CPUS_ON_NODE
@@ -92,7 +92,7 @@ export beta=1000 # percentage of enkf increment (*10)
 # in this case, to recenter around EnVar analysis set recenter_control_wgt=100
 export recenter_control_wgt=100
 export recenter_ensmean_wgt=`expr 100 - $recenter_control_wgt`
-export exptname="gsi_C${RES}_lgetkf_sondesonly"
+export exptname="gsi_C${RES}_lgetkf_psonly"
 # for 'passive' or 'replay' cycling of control fcst 
 export replay_controlfcst='false'
 export enkfonly='true' # pure EnKF
@@ -545,7 +545,7 @@ export HYBENSINFO=${fixgsi}/global_hybens_info.l${LEVS}.txt # only used if readi
 # in stratosphere/mesosphere
 #export HYBENSMOOTHINFO=${fixgsi}/global_hybens_smoothinfo.l${LEVS}.txt
 export OZINFO=${fixgsi}/global_ozinfo.txt
-export CONVINFO=${enkfscripts}/global_convinfo.txt.sondesonly
+export CONVINFO=${enkfscripts}/global_convinfo.txt.psonly
 export SATINFO=${fixgsi}/global_satinfo.txt
 export NLAT=$((${LATA}+2))
 # default is to use berror file in gsi fix dir.
