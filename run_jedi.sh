@@ -44,10 +44,10 @@ python ${iodablddir}/bin/proc_gsi_ncdiag.py \
        -o ioda_v2_data diag
 
 cd ioda_v2_data
-flst=`ls sondes_*_obs_${yyyymmddhh}.nc4`
+flst=`ls ps_*_obs_${yyyymmddhh}.nc4`
 
 python ${iodablddir}/bin/combine_obsspace.py \
-  -i ${flst} -o sondes_${yyyymmddhh}.nc4
+  -i ${flst} -o ps_${yyyymmddhh}.nc4
 
 cd ..
 
@@ -107,7 +107,7 @@ cd ${run_dir}
 
 #--------------------------------------------------------------------------------------------
  cp ${enkfscripts}/genyaml/config.template .
- cp ${enkfscripts}/genyaml/sondes.yaml .
+ cp ${enkfscripts}/genyaml/ps.yaml .
  cp ${enkfscripts}/genyaml/halo.distribution .
  cp ${enkfscripts}/genyaml/rr.distribution .
 
@@ -180,7 +180,7 @@ env
 
  echo "concanate observer"
  cd ${run_dir}
- obstype=sondes
+ obstype=ps
 
  number_members=81
  time python ${enkfscripts}/python_scripts/concanate-observer.py \
