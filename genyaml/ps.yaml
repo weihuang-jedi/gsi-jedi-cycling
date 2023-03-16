@@ -1,0 +1,99 @@
+obs space:
+  name: sfc
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: $(OBSINFILE)
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: $(OBSOUTFILE)
+  simulated variables: [surface_pressure, air_temperature, virtual_temperature]
+geovals:
+  filename: $(GEOVALSFILE)
+vector ref: GsiHofXBc
+tolerance: 0.01
+obs operator:
+  name: SfcPCorrected
+  da_psfc_scheme: GSI
+  geovar_sfc_geomz: surface_geometric_height
+  geovar_geomz: geopotential_height
+linear obs operator:
+  name: Identity
+obs pre filters:
+# Observation Range Sanity Check
+- filter: Bounds Check
+  filter variables:
+  - name: surface_pressure
+  minvalue: 37499
+  maxvalue: 106999
+  action:
+    name: reject
+# PrepBUFR check to be supplemented later
+- filter: RejectList
+  where:
+  - variable:
+      name: surface_pressure@PreQC
+    is_in: 4-15
+# error assignments
+- filter: Perform Action
+  filter variables:
+  - name: surface_pressure
+  where:
+  - variable: surface_pressure@ObsType
+    is_in: [181]
+  action:
+    name: assign error
+    error function:
+      name: ObsErrorModelStepwiseLinear@ObsFunction
+      options:
+        xvar:
+          name: ObsValue/surface_pressure
+        xvals: [80000, 75000]
+        errors: [110, 120]
+- filter: Perform Action
+  filter variables:
+  - name: surface_pressure
+  where:
+  - variable: surface_pressure@ObsType
+    is_in: [187]
+  action:
+    name: assign error
+    error function:
+      name: ObsErrorModelStepwiseLinear@ObsFunction
+      options:
+        xvar:
+          name: ObsValue/surface_pressure
+        xvals: [85000, 80000]
+        errors: [120, 140]
+obs prior filters:
+# error inflation based on Ps correction
+- filter: Perform Action
+  filter variables:
+  - name: surface_pressure
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsErrorFactorSfcPressure@ObsFunction
+      options:
+        geovar_geomz: geopotential_height
+        geovar_sfc_geomz: surface_geometric_height
+obs post filters:
+- filter: Background Check
+  filter variables:
+  - name: surface_pressure
+  threshold: 5.0
+  action:
+    name: reject
+  where:
+  - variable: surface_pressure@PreQC
+    is_not_in: [3]
+- filter: Background Check
+  filter variables:
+  - name: surface_pressure
+  threshold: 3.5
+  action:
+    name: reject
+  where:
+  - variable: surface_pressure@PreQC
+    is_in: [3]

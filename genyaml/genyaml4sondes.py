@@ -55,9 +55,8 @@ class GenerateYAML():
       if(self.debug):
         print('YAML %d: %s' %(n, yaml_out))
 
-      self.config['OBSINFILE'] = 'ioda_v2_data/sfc_ps_%s.nc4' %(self.config['YYYYMMDDHH'])
-      self.config['OBSOUTFILE'] = '%s/mem%3.3d/sfc_ps_%s.nc4' %(self.obsdir, n, self.config['YYYYMMDDHH'])
-      self.config['GEOVALSFILE'] = '%s/mem%3.3d/sfc_ps_geovals_%s.nc4' %(self.obsdir, n, self.config['YYYYMMDDHH'])
+      self.config['OBSINFILE'] = 'ioda_v2_data/sondes_%s.nc4' %(self.config['YYYYMMDDHH'])
+      self.config['OBSOUTFILE'] = '%s/mem%3.3d/sondes_%s.nc4' %(self.obsdir, n, self.config['YYYYMMDDHH'])
       self.config['MEMBERDATAPATH'] = 'mem%3.3d/INPUT' %(n)
       self.config['MEMSTR'] = 'mem%3.3d' %(n)
 
@@ -71,9 +70,8 @@ class GenerateYAML():
     if(self.debug):
       print('YAML: %s' %(yaml_out))
 
-    self.config['OBSINFILE'] = '%s/sfc_ps_%s_0000.nc4' %(self.obsdir, self.config['YYYYMMDDHH'])
-    self.config['OBSOUTFILE'] = 'solver/sfc_ps_%s.nc4' %(self.config['YYYYMMDDHH'])
-    self.config['GEOVALSFILE'] = 'solver/sfc_ps_geovals_%s.nc4' %(self.config['YYYYMMDDHH'])
+    self.config['OBSINFILE'] = '%s/sondes_%s_0000.nc4' %(self.obsdir, self.config['YYYYMMDDHH'])
+    self.config['OBSOUTFILE'] = 'solver/sondes_%s.nc4' %(self.config['YYYYMMDDHH'])
 
     self.genYAML(self.config, self.solver, yaml_out)
 

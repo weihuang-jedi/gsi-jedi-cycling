@@ -34,22 +34,22 @@ mkdir ioda_v2_data diag
 cp diag_conv_* diag/.
 which python
 echo "in run_dir: $${run_dir}"
-echo "ls diag"
-ls diag
+#echo "ls diag"
+#ls diag
 
-echo "module list"
-module list
+#echo "module list"
+#module list
 
 python ${iodablddir}/bin/proc_gsi_ncdiag.py \
        -o ioda_v2_data diag
 
-cd ioda_v2_data
-flst=`ls ps_*_obs_${yyyymmddhh}.nc4`
-
-python ${iodablddir}/bin/combine_obsspace.py \
-  -i ${flst} -o ps_${yyyymmddhh}.nc4
-
-cd ..
+#cd ioda_v2_data
+#flst=`ls *_ps_obs_${yyyymmddhh}.nc4`
+#
+#python ${iodablddir}/bin/combine_obsspace.py \
+#  -i ${flst} -o ps_${yyyymmddhh}.nc4
+#
+#cd ..
 
 echo "ls ioda_v2_data"
 ls ioda_v2_data
