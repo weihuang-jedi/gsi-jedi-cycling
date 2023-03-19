@@ -80,5 +80,4 @@ output:
 # ----------------
 observations:
   observers:
-  - !INC ps.yaml
-  - !INC obs-local.yaml
+  - !INC sondes.yaml

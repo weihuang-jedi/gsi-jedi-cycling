@@ -33,7 +33,8 @@ if [ $skipcat == 'false' ]; then
    if [ $NOCONV == 'YES' ]; then
      diagfile=${datapath2}/diag_amsua_n15_ges.${analdate}_${charnanal2}.nc4
    else
-     diagfile=${datapath2}/diag_conv_uv_ges.${analdate}_${charnanal2}.nc4
+    #diagfile=${datapath2}/diag_conv_uv_ges.${analdate}_${charnanal2}.nc4
+     diagfile=${datapath2}/diag_conv_ps_ges.${analdate}_${charnanal2}.nc4
    fi
 else
    if [ $NOCONV == 'YES' ]; then

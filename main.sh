@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -x
+
 # main driver script
 # gsi gain or gsi covariance GSI EnKF (based on ensemble mean background)
 # optional high-res control fcst replayed to ens mean analysis
@@ -190,6 +192,9 @@ export PREINP="${RUN}.t${hr}z."
 export PREINP1="${RUN}.t${hrp1}z."
 export PREINPm1="${RUN}.t${hrm1}z."
 
+echo "nanals2 = $nanals2"
+echo "cold_start = $cold_start"
+
 # if nanals2>0, extend nanals2 members out to FHMAX_LONGER
 if [ $nanals2 -gt 0 ] && [ $cold_start != "true" ]; then
   echo "will run $nanals2 members out to hour $FHMAX_LONGER"
@@ -219,6 +224,9 @@ while [ $alldone == 'no' ] && [ $niter -le $nitermax ]; do
    fi
    niter=$((niter+1))
 done
+
+echo "alldone=$alldone"
+echo "replay_controlfcst=$replay_controlfcst"
 
 # change resolution of high-res control forecast to ensemble resolution
 # this file only used to calculate analysis increment for replay

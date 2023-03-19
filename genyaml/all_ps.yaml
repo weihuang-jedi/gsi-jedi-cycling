@@ -1,7 +1,5 @@
 obs space:
-  name: sondes
-  distribution:
-    !INC distribution.yaml
+  name: sfc
   obsdatain:
     engine:
       type: H5File
@@ -10,7 +8,7 @@ obs space:
     engine:
       type: H5File
       obsfile: $(OBSOUTFILE)
-  simulated variables: [surface_pressure]
+  simulated variables: [surface_pressure, air_temperature, virtual_temperature]
 geovals:
   filename: $(GEOVALSFILE)
 vector ref: GsiHofXBc

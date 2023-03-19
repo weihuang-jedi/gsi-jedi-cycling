@@ -43,13 +43,13 @@ echo "in run_dir: $${run_dir}"
 python ${iodablddir}/bin/proc_gsi_ncdiag.py \
        -o ioda_v2_data diag
 
-#cd ioda_v2_data
-#flst=`ls *_ps_obs_${yyyymmddhh}.nc4`
-#
-#python ${iodablddir}/bin/combine_obsspace.py \
-#  -i ${flst} -o ps_${yyyymmddhh}.nc4
-#
-#cd ..
+cd ioda_v2_data
+flst=`ls *_ps_obs_${yyyymmddhh}.nc4`
+
+python ${iodablddir}/bin/combine_obsspace.py \
+    -i ${flst} -o ps_obs_${yyyymmddhh}.nc4
+
+cd ..
 
 echo "ls ioda_v2_data"
 ls ioda_v2_data
@@ -110,6 +110,7 @@ cd ${run_dir}
  cp ${enkfscripts}/genyaml/ps.yaml .
  cp ${enkfscripts}/genyaml/halo.distribution .
  cp ${enkfscripts}/genyaml/rr.distribution .
+ cp ${enkfscripts}/genyaml/obs-local.yaml .
 
  export corespernode=40
  export mpitaskspernode=40
