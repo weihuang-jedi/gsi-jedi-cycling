@@ -57,7 +57,7 @@ class GenerateYAML():
 
       self.config['OBSINFILE'] = 'ioda_v2_data/ps_obs_%s.nc4' %(self.config['YYYYMMDDHH'])
       self.config['OBSOUTFILE'] = '%s/mem%3.3d/ps_obs_%s.nc4' %(self.obsdir, n, self.config['YYYYMMDDHH'])
-      self.config['GEOVALSFILE'] = '%s/mem%3.3d/ps_geovals_obs_%s.nc4' %(self.obsdir, n, self.config['YYYYMMDDHH'])
+     #self.config['GEOVALSFILE'] = '%s/mem%3.3d/ps_geovals_obs_%s.nc4' %(self.obsdir, n, self.config['YYYYMMDDHH'])
      #self.config['OBSINFILE'] = 'ioda_v2_data/sfc_ps_obs_%s.nc4' %(self.config['YYYYMMDDHH'])
      #self.config['OBSOUTFILE'] = '%s/mem%3.3d/sfc_ps_obs_%s.nc4' %(self.obsdir, n, self.config['YYYYMMDDHH'])
      #self.config['GEOVALSFILE'] = '%s/mem%3.3d/sfc_ps_geovals_obs_%s.nc4' %(self.obsdir, n, self.config['YYYYMMDDHH'])
@@ -76,7 +76,7 @@ class GenerateYAML():
 
     self.config['OBSINFILE'] = '%s/ps_obs_%s_0000.nc4' %(self.obsdir, self.config['YYYYMMDDHH'])
     self.config['OBSOUTFILE'] = 'solver/ps_obs_%s.nc4' %(self.config['YYYYMMDDHH'])
-    self.config['GEOVALSFILE'] = 'solver/ps_geovals_obs_%s.nc4' %(self.config['YYYYMMDDHH'])
+   #self.config['GEOVALSFILE'] = 'solver/ps_geovals_obs_%s.nc4' %(self.config['YYYYMMDDHH'])
    #self.config['OBSINFILE'] = '%s/sfc_ps_obs_%s_0000.nc4' %(self.obsdir, self.config['YYYYMMDDHH'])
    #self.config['OBSOUTFILE'] = 'solver/sfc_ps_obs_%s.nc4' %(self.config['YYYYMMDDHH'])
    #self.config['GEOVALSFILE'] = 'solver/sfc_ps_geovals_obs_%s.nc4' %(self.config['YYYYMMDDHH'])

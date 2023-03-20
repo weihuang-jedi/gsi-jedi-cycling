@@ -1,7 +1,9 @@
 obs space:
-  name: sondes
+  name: surface pressure
   distribution:
     !INC distribution.yaml
+  io pool:
+    max pool size: 1
   obsdatain:
     engine:
       type: H5File
@@ -11,10 +13,6 @@ obs space:
       type: H5File
       obsfile: $(OBSOUTFILE)
   simulated variables: [surface_pressure]
-geovals:
-  filename: $(GEOVALSFILE)
-vector ref: GsiHofXBc
-tolerance: 0.01
 obs operator:
   name: SfcPCorrected
   da_psfc_scheme: GSI

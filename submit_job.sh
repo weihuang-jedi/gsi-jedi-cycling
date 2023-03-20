@@ -9,5 +9,5 @@ fi
 
 #echo "machine: ${machine}"
 
-cat ${machine}_preamble config.sh > job.sh
+cat preamble/${machine} config.sh > job.sh
 sbatch job.sh
