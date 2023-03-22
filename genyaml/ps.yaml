@@ -12,7 +12,7 @@ obs space:
     engine:
       type: H5File
       obsfile: $(OBSOUTFILE)
-  simulated variables: [surface_pressure]
+  simulated variables: [stationPressure]
 obs operator:
   name: SfcPCorrected
   da_psfc_scheme: GSI
@@ -24,7 +24,7 @@ obs pre filters:
 # Observation Range Sanity Check
 - filter: Bounds Check
   filter variables:
-  - name: surface_pressure
+  - name: stationPressure
   minvalue: 37499
   maxvalue: 106999
   action:
@@ -33,14 +33,14 @@ obs pre filters:
 - filter: RejectList
   where:
   - variable:
-      name: surface_pressure@PreQC
+      name: stationPressure@PreQC
     is_in: 4-15
 # error assignments
 - filter: Perform Action
   filter variables:
-  - name: surface_pressure
+  - name: stationPressure
   where:
-  - variable: surface_pressure@ObsType
+  - variable: stationPressure@ObsType
     is_in: [181]
   action:
     name: assign error
@@ -48,14 +48,14 @@ obs pre filters:
       name: ObsErrorModelStepwiseLinear@ObsFunction
       options:
         xvar:
-          name: ObsValue/surface_pressure
+          name: ObsValue/stationPressure
         xvals: [80000, 75000]
         errors: [110, 120]
 - filter: Perform Action
   filter variables:
-  - name: surface_pressure
+  - name: stationPressure
   where:
-  - variable: surface_pressure@ObsType
+  - variable: stationPressure@ObsType
     is_in: [187]
   action:
     name: assign error
@@ -63,14 +63,14 @@ obs pre filters:
       name: ObsErrorModelStepwiseLinear@ObsFunction
       options:
         xvar:
-          name: ObsValue/surface_pressure
+          name: ObsValue/stationPressure
         xvals: [85000, 80000]
         errors: [120, 140]
 obs prior filters:
 # error inflation based on Ps correction
 - filter: Perform Action
   filter variables:
-  - name: surface_pressure
+  - name: stationPressure
   action:
     name: inflate error
     inflation variable:
@@ -81,19 +81,19 @@ obs prior filters:
 obs post filters:
 - filter: Background Check
   filter variables:
-  - name: surface_pressure
+  - name: stationPressure
   threshold: 5.0
   action:
     name: reject
   where:
-  - variable: surface_pressure@PreQC
+  - variable: stationPressure@PreQC
     is_not_in: [3]
 - filter: Background Check
   filter variables:
-  - name: surface_pressure
+  - name: stationPressure
   threshold: 3.5
   action:
     name: reject
   where:
-  - variable: surface_pressure@PreQC
+  - variable: stationPressure@PreQC
     is_in: [3]

@@ -49,6 +49,11 @@ flst=`ls *_ps_obs_${yyyymmddhh}.nc4`
 python ${iodablddir}/bin/combine_obsspace.py \
     -i ${flst} -o ps_obs_${yyyymmddhh}.nc4
 
+mv ps_obs_${yyyymmddhh}.nc4 v2_ps_obs_${yyyymmddhh}.nc4
+${iodablddir}/bin/ioda-upgrade-v2-to-v3.x \
+	v2_ps_obs_${yyyymmddhh}.nc4 ps_obs_${yyyymmddhh}.nc4 \
+	${enkfscripts}/genyaml/ObsSpace.yaml
+	
 cd ..
 
 echo "ls ioda_v2_data"

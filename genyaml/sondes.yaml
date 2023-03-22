@@ -7,8 +7,8 @@ obs space:
       type: H5File
       obsfile: $(OBSINFILE)
     obsgrouping:
-      group variables: ["station_id"]
-      sort variable: "air_pressure"
+      group variables: ["stationIdentification"]
+      sort variable: "pressure"
       sort order: "descending"
   obsdataout:
     engine:
@@ -16,27 +16,27 @@ obs space:
       obsfile: $(OBSOUTFILE)
   io pool:
     max pool size: 1
-  simulated variables: [air_temperature, virtual_temperature, eastward_wind, northward_wind, specific_humidity]
+  simulated variables: [airTemperature, virtualTemperature, windEastward, windNorthward, specificHumidity]
 obs operator:
   name: Composite
   components:
    - name: VertInterp
      variables:
-     - name: air_temperature
-     - name: virtual_temperature
-     - name: eastward_wind
-     - name: northward_wind
-     - name: specific_humidity
+     - name: airTemperature
+     - name: virtualTemperature
+     - name: windEastward
+     - name: windNorthward
+     - name: specificHumidity
 linear obs operator:
   name: Composite
   components:
    - name: VertInterp
      variables:
-     - name: air_temperature
-     - name: virtual_temperature
-     - name: eastward_wind
-     - name: northward_wind
-     - name: specific_humidity
+     - name: airTemperature
+     - name: virtualTemperature
+     - name: windEastward
+     - name: windNorthward
+     - name: specificHumidity
 obs filters:
   #
   # Reject all obs with PreQC mark already set above 3
