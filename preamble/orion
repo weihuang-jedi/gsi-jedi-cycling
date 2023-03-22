@@ -6,8 +6,8 @@
 #SBATCH --ntasks-per-node=40
 #SBATCH -p orion
 #SBATCH -J gdasapp
-#SBATCH -e gdasapp.err
-#SBATCH -o gdasapp.out
+#SBATCH -e logs/gdasapp.%J.err
+#SBATCH -o logs/gdasapp.%J.out
 
 export NODES=$SLURM_NNODES
 export corespernode=$SLURM_CPUS_ON_NODE
