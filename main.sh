@@ -538,7 +538,7 @@ else
 fi
 cd $homedir
 if [ $save_hpss == 'true' ]; then
-   cat ${machine}_preamble_hpss hpss.sh > job_hpss.sh
+   cat preamble/${machine}_hpss scripts/hpss.sh > job_hpss.sh
   #sbatch --export=ALL job_hpss.sh
    sbatch --export=machine=${machine},analdate=${analdate},datapath2=${datapath2},hsidir=${hsidir},save_hpss_full=${save_hpss_full},save_hpss_subset=${save_hpss_subset} job_hpss.sh
 fi

@@ -10,8 +10,8 @@
 
  touch ${cold_start_dir}/cold_start_bias
 
- cp gdas1.t00z.abias ${cold_start_dir}/.
- cp abias_pc ${cold_start_dir}/.
+ cp textdata/gdas1.t00z.abias ${cold_start_dir}/.
+ cp textdata/abias_pc ${cold_start_dir}/.
 
 cat > ${run_dir}/analdate.sh << EOF1
 export analdate=${datestr}
