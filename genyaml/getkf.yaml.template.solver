@@ -87,4 +87,3 @@ output increment:
 observations:
   observers:
   - !INC ps.yaml
-  - !INC obs-local.yaml

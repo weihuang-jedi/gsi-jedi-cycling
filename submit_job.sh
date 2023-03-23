@@ -10,4 +10,5 @@ fi
 #echo "machine: ${machine}"
 
 cat preamble/${machine} config/${machine} > job.sh
+
 sbatch job.sh

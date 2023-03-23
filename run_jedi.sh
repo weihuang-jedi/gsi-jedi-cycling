@@ -102,7 +102,7 @@ module list
 #echo "env"
 #env
 
-${enkfscripts}/gen_ensmean.sh ${run_dir}
+${enkfscripts}/scripts/gen_ensmean.sh ${run_dir}
 
 echo "cd ${run_dir}" >> ${run_dir}/logs/run_jedi.out
 cd ${run_dir}
@@ -112,7 +112,6 @@ cd ${run_dir}
  cp ${enkfscripts}/genyaml/ps.yaml .
  cp ${enkfscripts}/genyaml/halo.distribution .
  cp ${enkfscripts}/genyaml/rr.distribution .
- cp ${enkfscripts}/genyaml/obs-local.yaml .
 
  export corespernode=40
  export mpitaskspernode=40
@@ -143,8 +142,8 @@ cd ${run_dir}
    --obsdir=observer
 
 #--------------------------------------------------------------------------------------------
- export OOPS_DEBUG=-11
- export OOPS_TRACK=-11
+#export OOPS_DEBUG=-11
+#export OOPS_TRACK=-11
 #export OOPS_TRACE=1
 
  echo "run observer"

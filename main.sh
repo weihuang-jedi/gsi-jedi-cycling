@@ -571,8 +571,7 @@ if [ $analdate -le $analdate_end ]  && [ $resubmit == 'true' ]; then
    if [ $resubmit == 'true' ]; then
       echo "resubmit script"
       echo "machine = $machine"
-      cat ${machine}_preamble config.sh > job.sh
-      sbatch --export=ALL job.sh
+      submit_job.sh $machine
    fi
 fi
 

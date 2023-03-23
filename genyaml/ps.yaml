@@ -16,7 +16,7 @@ obs space:
 obs operator:
   name: SfcPCorrected
   da_psfc_scheme: GSI
-  geovar_sfc_geomz: surface_geometric_height
+ #geovar_sfc_geomz: surface_geometric_height
   geovar_geomz: geopotential_height
 linear obs operator:
   name: Identity
@@ -77,7 +77,7 @@ obs prior filters:
       name: ObsErrorFactorSfcPressure@ObsFunction
       options:
         geovar_geomz: geopotential_height
-        geovar_sfc_geomz: surface_geometric_height
+       #geovar_sfc_geomz: surface_geometric_height
 obs post filters:
 - filter: Background Check
   filter variables:
@@ -97,3 +97,7 @@ obs post filters:
   where:
   - variable: stationPressure@PreQC
     is_in: [3]
+obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000
