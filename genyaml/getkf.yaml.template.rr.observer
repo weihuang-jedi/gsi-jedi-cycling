@@ -31,7 +31,7 @@ background:
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
       filetype: fms restart
-      state variables: [u, v, t, DZ, delp, phis, sphum, o3mr, ps]
+      state variables: [u, v, t, DZ, delp, phis, sphum, o3mr]
 
 control member:
   date: '$(BKG_ISOTIME)'
@@ -43,7 +43,7 @@ control member:
   filename_sfcw: fv_srf_wnd.res.nc
   filename_cplr: coupler.res
   filetype: fms restart
-  state variables: [u, v, t, DZ, delp, phis, sphum, o3mr, ps]
+  state variables: [u, v, t, DZ, delp, phis, sphum, o3mr]
 
 driver:
   read HX from disk: false
