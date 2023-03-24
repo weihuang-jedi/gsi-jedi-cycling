@@ -2,5 +2,6 @@
 *.out
 *.stderr
 *.stdout
+job.sh
 exec_hera
 exec_orion

@@ -36,13 +36,13 @@ export ensda="enkf_run.sh"
 export rungsi='run_gsi_4densvar.sh'
 export rungfs='run_fv3.sh' # ensemble forecast
 
-export do_cleanup='false' # if true, create tar files, delete *mem* files.
-export cleanup_fg='false'
-export cleanup_ensmean='false'
-export cleanup_ensmean_enkf='false'
-export cleanup_anal='false'
-export cleanup_controlanl='false'
-export cleanup_observer='false' 
+#export do_cleanup='false' # if true, create tar files, delete *mem* files.
+#export cleanup_fg='false'
+#export cleanup_ensmean='false'
+#export cleanup_ensmean_enkf='false'
+#export cleanup_anal='false'
+#export cleanup_controlanl='false'
+#export cleanup_observer='false' 
 export resubmit='true'
 export replay_run_observer='false' # run observer on replay control forecast
 # python script checkdate.py used to check
@@ -64,18 +64,18 @@ export controlanal="false" # hybrid-cov high-res control analysis as in ops
 # (hybgain will be set to false if controlanal=true)
 
 # override values from above for debugging.
-export cleanup_ensmean='false'
-export cleanup_ensmean_enkf='false'
 export recenter_fcst="false"
-export cleanup_controlanl='false'
-export cleanup_observer='false'
-export cleanup_anal='false'
 export recenter_anal="false"
-export cleanup_fg='false'
-export do_cleanup='false'
+export cleanup_ensmean='true'
+export cleanup_ensmean_enkf='true'
+export cleanup_controlanl='true'
+export cleanup_observer='true'
+export cleanup_anal='true'
+export cleanup_fg='true'
+export do_cleanup='true'
 
-export save_hpss_subset="false" # save a subset of data each analysis time to HPSS
-export save_hpss="false"
+export save_hpss_subset="true" # save a subset of data each analysis time to HPSS
+export save_hpss="true"
 
 export resubmit='true'
 

@@ -4,9 +4,9 @@
 #SBATCH -A gsienkf  
 #SBATCH -N 20    
 #SBATCH --partition=hera
-#SBATCH -J gsi_C96_lgetkf_sondesonly
-#SBATCH -e gsi_C96_lgetkf_sondesonly.err
-#SBATCH -o gsi_C96_lgetkf_sondesonly.out
+#SBATCH -J gsi_sondes
+#SBATCH -e logs/gsi_sondes.%J.err
+#SBATCH -o logs/gsi_sondes.%J.out
 
 export NODES=$SLURM_NNODES
 export corespernode=$SLURM_CPUS_ON_NODE
