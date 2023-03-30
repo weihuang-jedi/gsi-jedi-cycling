@@ -3,3 +3,4 @@
 *.stderr
 *.stdout
 exec_orion
+job.sh 

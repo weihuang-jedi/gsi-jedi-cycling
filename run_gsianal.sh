@@ -75,19 +75,28 @@ if [ "$cold_start_bias" == "true" ]; then
     mkdir -p $tmpdir
     sh ${enkfscripts}/${rungsi}
     /bin/rm -rf $tmpdir
-    if [  ! -s ${datapath2}/diag_conv_ps_ges.${analdate}_${charnanal2}.nc4 ]; then
+    if [  ! -s ${datapath2}/diag_conv_uv_ges.${analdate}_${charnanal2}.nc4 ]; then
        echo "gsi observer step failed"
        exit 1
     fi
+   #if [  ! -s ${datapath2}/diag_conv_ps_ges.${analdate}_${charnanal2}.nc4 ]; then
+   #   echo "gsi observer step failed"
+   #   exit 1
+   #fi
 fi
 export lread_obs_save=".false."
 export lread_obs_skip=".false."
 export HXONLY='NO'
-if [ -s $SIGANL06 ] && [ -s ${datapath2}/diag_conv_ps_ges.${analdate}_${charnanal2}.nc4 ]; then
+if [ -s $SIGANL06 ] && [ -s ${datapath2}/diag_conv_uv_ges.${analdate}_${charnanal2}.nc4 ]; then
   echo "gsi already completed"
   echo "yes" > ${current_logdir}/run_gsi_anal.log
   exit 0
 fi
+#if [ -s $SIGANL06 ] && [ -s ${datapath2}/diag_conv_ps_ges.${analdate}_${charnanal2}.nc4 ]; then
+#  echo "gsi already completed"
+#  echo "yes" > ${current_logdir}/run_gsi_anal.log
+#  exit 0
+#fi
 echo "${analdate} compute gsi analysis increment `date`"
 /bin/rm -rf $tmpdir
 mkdir -p $tmpdir

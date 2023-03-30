@@ -5,6 +5,8 @@ date
 # run model
 export DATOUT=${datapath}/${analdatep1}
 
+echo "DATOUT: ${DATOUT}"
+
 export OMP_NUM_THREADS=$fg_threads
 export OMP_STACKSIZE=512M
 export nprocs=`expr $fg_proc \/ $OMP_NUM_THREADS`
