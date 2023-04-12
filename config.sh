@@ -40,7 +40,7 @@ export rungfs='run_fv3.sh' # ensemble forecast
 export jedirun='true'
 export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
 #export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
-export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondesonly/templates.GSI_QConly
+export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_ps+sondes+amsua/templates.GSI_QConly
 export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
 
 #export do_cleanup='true' # if true, create tar files, delete *mem* files.
@@ -145,7 +145,8 @@ fi
 export datapath="${datadir}/${exptname}"
 export logdir="${datadir}/logs/${exptname}"
 
-export NOSAT="YES" # if yes, no radiances assimilated
+#export NOSAT="YES" # if yes, no radiances assimilated
+export NOSAT="NO" # if yes, no radiances assimilated
 export NOCONV="NO"
 export NOTLNMC="NO" # no TLNMC in GSI in GSI EnVar
 export NOOUTERLOOP="NO" # no outer loop in GSI EnVar
@@ -485,7 +486,7 @@ export HYBENSINFO=${fixgsi}/global_hybens_info.l${LEVS}.txt # only used if readi
 # in stratosphere/mesosphere
 #export HYBENSMOOTHINFO=${fixgsi}/global_hybens_smoothinfo.l${LEVS}.txt
 export OZINFO=${fixgsi}/global_ozinfo.txt
-export CONVINFO=${enkfscripts}/global_convinfo.txt.psonly
+export CONVINFO=${enkfscripts}/global_convinfo.txt.ps+sondes+amsua
 export SATINFO=${fixgsi}/global_satinfo.txt
 export NLAT=$((${LATA}+2))
 # default is to use berror file in gsi fix dir.
