@@ -2,7 +2,7 @@
 
 # cold start script
 
- run_dir=/work2/noaa/da/weihuang/cycling/jedi_C96_lgetkf_sondesonly
+ run_dir=/work2/noaa/da/weihuang/cycling/gsi_C96_lgetkf_ps+sondes+amsua
  datestr=2020010100
  cold_start_dir=${run_dir}/${datestr}
 
@@ -15,7 +15,7 @@
 
 cat > ${run_dir}/analdate.sh << EOF1
 export analdate=${datestr}
-export analdate_end=2020011600
+export analdate_end=2020020100
 EOF1
 
 cat > ${run_dir}/fg_only.sh << EOF2

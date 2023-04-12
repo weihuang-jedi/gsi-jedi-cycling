@@ -3,9 +3,9 @@
 #SBATCH -t 00:30:00
 #SBATCH -A gsienkf  
 #SBATCH -N 20    
-#SBATCH -J C96_lgetkf_sondesonly
-#SBATCH -e C96_lgetkf_sondesonly.err
-#SBATCH -o C96_lgetkf_sondesonly.out
+#SBATCH -J C96_lgetkf_psonly
+#SBATCH -e C96_lgetkf_psonly.err
+#SBATCH -o C96_lgetkf_psonly.out
 
 export NODES=$SLURM_NNODES
 export corespernode=$SLURM_CPUS_ON_NODE

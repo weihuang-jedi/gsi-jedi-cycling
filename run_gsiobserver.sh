@@ -34,11 +34,13 @@ if [ $skipcat == 'false' ]; then
      diagfile=${datapath2}/diag_amsua_n15_ges.${analdate}_${charnanal2}.nc4
    else
      diagfile=${datapath2}/diag_conv_uv_ges.${analdate}_${charnanal2}.nc4
+    #diagfile=${datapath2}/diag_conv_ps_ges.${analdate}_${charnanal2}.nc4
    fi
 else
    if [ $NOCONV == 'YES' ]; then
      diagfile=${datapath2}/gsitmp_${charnanal2}/pe0000.amsua_n15_01.nc4
    else
+    #diagfile=${datapath2}/gsitmp_${charnanal2}/pe0000.conv_ps_01.nc4
      diagfile=${datapath2}/gsitmp_${charnanal2}/pe0000.conv_uv_01.nc4
    fi
 fi
