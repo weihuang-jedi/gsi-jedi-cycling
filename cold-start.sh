@@ -2,7 +2,7 @@
 
 # cold start script
 
- run_dir=/work2/noaa/da/weihuang/cycling/gsi_C96_lgetkf_ps+sondes+amsua
+ run_dir=/work2/noaa/da/weihuang/cycling/gsi_C96_lgetkf_sondes+amsua_n19
  datestr=2020010100
  cold_start_dir=${run_dir}/${datestr}
 

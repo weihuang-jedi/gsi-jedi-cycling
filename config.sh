@@ -26,7 +26,7 @@ export beta=1000 # percentage of enkf increment (*10)
 # in this case, to recenter around EnVar analysis set recenter_control_wgt=100
 export recenter_control_wgt=100
 export recenter_ensmean_wgt=`expr 100 - $recenter_control_wgt`
-export exptname="gsi_C${RES}_lgetkf_ps+sondes+amsua"
+export exptname="gsi_C${RES}_lgetkf_sondes+amsua_n19"
 # for 'passive' or 'replay' cycling of control fcst 
 export replay_controlfcst='false'
 export enkfonly='true' # pure EnKF
@@ -40,7 +40,7 @@ export jedirun='false'
 #export jedirun='true'
 export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
 #export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
-export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_ps+sondes+amsua/templates.GSI_QConly
+export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_sondes+amsua_n19/templates.GSI_QConly
 export jediblddir=/work2/noaa/gsienkf/weihuang/production/build/fv3-bundle
 
 #export do_cleanup='true' # if true, create tar files, delete *mem* files.
@@ -486,8 +486,8 @@ export HYBENSINFO=${fixgsi}/global_hybens_info.l${LEVS}.txt # only used if readi
 # in stratosphere/mesosphere
 #export HYBENSMOOTHINFO=${fixgsi}/global_hybens_smoothinfo.l${LEVS}.txt
 export OZINFO=${fixgsi}/global_ozinfo.txt
-export CONVINFO=${enkfscripts}/global_convinfo.txt.ps+sondes+amsua
-export SATINFO=${fixgsi}/global_satinfo.txt
+export CONVINFO=${enkfscripts}/global_convinfo.txt.sondes+amsua_n19
+export SATINFO=${fixgsi}/global_satinfo.txt.sondes+amsua_n19
 export NLAT=$((${LATA}+2))
 # default is to use berror file in gsi fix dir.
 #export BERROR=${basedir}/staticB/global_berror_enkf.l${LEVS}y${NLAT}.f77
