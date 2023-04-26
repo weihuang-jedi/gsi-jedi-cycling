@@ -36,8 +36,8 @@ export ensda="enkf_run.sh"
 export rungsi='run_gsi_4densvar.sh'
 export rungfs='run_fv3.sh' # ensemble forecast
 
-#export jedirun='false'
-export jedirun='true'
+export jedirun='false'
+#export jedirun='true'
 export jedidatadir=/work2/noaa/gsienkf/weihuang/jedi/case_study/Data
 #export jeditemplatedir=/work2/noaa/gsienkf/weihuang/production/run/templates
 export jeditemplatedir=/work2/noaa/da/weihuang/cycling/scripts/jedi_C96_lgetkf_ps+sondes+amsua/templates.GSI_QConly

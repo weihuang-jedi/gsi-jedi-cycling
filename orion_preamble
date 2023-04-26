@@ -6,8 +6,10 @@
 #SBATCH --ntasks-per-node=40
 #SBATCH -p orion
 #SBATCH -J da_gsi_C96_lgetkf_ps+sondes+amsua
-#SBATCH -e da_gsi_C96_lgetkf_ps+sondes+amsua.err
-#SBATCH -o da_gsi_C96_lgetkf_ps+sondes+amsua.out
+##SBATCH -e da_gsi_C96_lgetkf_ps+sondes+amsua.err
+##SBATCH -o da_gsi_C96_lgetkf_ps+sondes+amsua.out
+#SBATCH -e logs/da_gsi_C96_lgetkf_ps+sondes+amsua.%J.err
+#SBATCH -o logs/da_gsi_C96_lgetkf_ps+sondes+amsua.%J.out
 
 export NODES=$SLURM_NNODES
 export corespernode=$SLURM_CPUS_ON_NODE
